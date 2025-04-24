@@ -51,7 +51,7 @@ export default function CompleteProfileModal({
     setError("");
 
     try {
-      const res = await fetch(backendip +  "/api/update-profile", {
+      const res = await fetch("http://34.69.214.55:3001/api/update-profile", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
