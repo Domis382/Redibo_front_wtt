@@ -17,5 +17,5 @@ export async function login(email: string, password: string) {
 }
 
 export const backendip = () => {
-  return "34.69.214.55";
+  return "http://34.69.214.55:3001";
 };
