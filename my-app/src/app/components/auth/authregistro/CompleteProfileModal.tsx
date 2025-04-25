@@ -50,7 +50,7 @@ export default function CompleteProfileModal({
     setError("");
 
     try {
-      const res = await fetch("http://localhost:3001/api/register", {
+      const res = await fetch("http://34.69.214.55:3001/api/register", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
