@@ -1,4 +1,3 @@
-import { backendip } from "@/libs/authServices";
 import styles from "./RegisterModal.module.css";
 import { useState } from "react";
 
@@ -51,7 +50,7 @@ export default function CompleteProfileModal({
     setError("");
 
     try {
-      const res = await fetch(backendip +  "/api/update-profile", {
+      const res = await fetch("http://localhost:3001/api/register", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
