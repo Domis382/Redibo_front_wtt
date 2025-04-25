@@ -15,7 +15,7 @@ export default function RegisterModal({
   const handleGoogleRegister = () => {
     try {
       localStorage.setItem("openCompleteProfileModal", "true");
-      window.location.href = backendip + "/api/auth/google";
+      window.location.href = "http://34.69.214.55:3001/api/auth/google";
     } catch (error) {
       console.error("Error en registro con Google", error);
     }
@@ -312,7 +312,7 @@ export default function RegisterModal({
         telefono: phone ? parseInt(cleanPhone) : null,
       };
 
-      const res = await fetch(backendip + "/api/register", {
+      const res = await fetch("http://34.69.214.55:3001/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),
