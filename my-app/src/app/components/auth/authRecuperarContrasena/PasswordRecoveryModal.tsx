@@ -33,7 +33,7 @@ const PasswordRecoveryModal = ({
     }
 
     try {
-      const response = await fetch('http://localhost:3001/api/recover-password', {
+      const response = await fetch('http://34.69.214.55:3001/api/recover-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

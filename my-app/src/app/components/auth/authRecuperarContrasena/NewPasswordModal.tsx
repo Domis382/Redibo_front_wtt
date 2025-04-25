@@ -98,7 +98,7 @@ const NewPasswordModal = ({
       console.log('📤 Enviando al backend:', {newPassword });
       //console.log('📦 Código recibido en NewPasswordModal:', code);
 
-      const response = await fetch('http://localhost:3001/api/reset-password', {
+      const response = await fetch('http://34.69.214.55:3001/api/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({  newPassword }),
