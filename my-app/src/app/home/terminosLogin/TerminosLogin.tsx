@@ -1,13 +1,10 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import Navbar from '@/app/components/navbar/Navbar';
-import LoginModal from '@/app/components/auth/authInicioSesion/LoginModal';
-import RegisterModal from '@/app/components/auth/authregistro/RegisterModal';
+import NavbarInicioSesion from '@/app/components/navbar/NavbarInicioSesion';
 
 
-export default function Terminos() {
+export default function TerminosLogin() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const [activeModal, setActiveModal] = useState<'login' | 'register' | null>(null);
 
   useEffect(() => {
     const sections = document.querySelectorAll('section[id]');
@@ -38,8 +35,7 @@ export default function Terminos() {
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background-principal)]">
       <header>
-          <Navbar onLoginClick={() => setActiveModal('login')}
-          onRegisterClick={() => setActiveModal('register')}/>
+          <NavbarInicioSesion/>
       </header>
 
 
@@ -380,13 +376,6 @@ export default function Terminos() {
           Términos y condiciones
         </a>*/}
       </footer>
-      {activeModal === 'login' && (
-        <LoginModal onClose={() => setActiveModal(null)} onRegisterClick={() =>setActiveModal('register')} onPasswordRecoveryClick={() => console.log('Recuperar contraseña')}/>
-      )}
-      
-      {activeModal === 'register' && (
-        <RegisterModal onClose={() => setActiveModal(null)} onLoginClick={() => setActiveModal('login')}/>
-      )}
     </div>
   );
 }

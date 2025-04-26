@@ -7,7 +7,7 @@ import { useUser } from '@/hooks/useUser';
 
 import NavbarInicioSesion from '@/app/components/navbar/NavbarInicioSesion';
 import FiltersBar from '@/app/components/filters/FiltersBar';
-import Footer from '@/app/components/footer/Footer';
+import Footer from '@/app/components/footer/FooterLogin';
 import LoginModal from '@/app/components/auth/authInicioSesion/LoginModal';
 import RegisterModal from '@/app/components/auth/authregistro/RegisterModal';
 

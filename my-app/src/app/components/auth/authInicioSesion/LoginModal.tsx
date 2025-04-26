@@ -199,7 +199,6 @@ export default function LoginModal({ onClose, onRegisterClick, onPasswordRecover
         {errorAtSymbol && (<p className="text-[var(--rojo)] text-center text-[0.8rem] font-[var(--tamaña-bold)] mt-1">{errorAtSymbol}</p>)}
         {errorBeforeAt && (<p className="text-[var(--rojo)] text-center text-[0.8rem] font-[var(--tamaña-bold)] mt-1">{errorBeforeAt}</p>)}
         {errorTextAfterAt && (<p className="text-[var(--rojo)] text-center text-[0.8rem] font-[var(--tamaña-bold)] mt-1">{errorTextAfterAt}</p>)}
-        
         {errorEmailLength && (<p className="text-[var(--rojo)] text-center text-[0.8rem] font-[var(--tamaña-bold)] mt-1">{errorEmailLength}</p>)}
 
         {/*borde contraseña*/}
@@ -232,7 +231,11 @@ export default function LoginModal({ onClose, onRegisterClick, onPasswordRecover
                 const value = e.target.value;
                 if (value.length <= 25) {
                   setPassword(value);
+                  setErrorPasswordLength('');
+                } else {
+                  setErrorPasswordLength('La cantidad mínima es de 8 caracteres y el máximo es de 25 caracteres.');
                 }
+                
               }}
               ////////////////////////////////////
               style={{ fontFamily: 'var(--fuente-principal)', fontWeight: 'var(--tamaña-bold)', outline: 'none' }}
@@ -281,7 +284,8 @@ export default function LoginModal({ onClose, onRegisterClick, onPasswordRecover
             </svg>
           )}
   
-        </div>{errorPasswordLength && (<p className="text-[var(--rojo)] text-center text-[0.8rem] font-[var(--tamaña-bold)] mt-1">{errorPasswordLength}</p>)}
+        </div>
+        {errorPasswordLength && (<p className="text-[var(--rojo)] text-center text-[0.8rem] font-[var(--tamaña-bold)] mt-1">{errorPasswordLength}</p>)}
         
         <button 
           ////////////////back///////////////

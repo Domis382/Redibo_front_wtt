@@ -1,5 +1,4 @@
 "use client";
-
   import Inputlabel from "@/app/components/input/Inputlabel";
   import NavbarPerfilUsuario from "@/app/components/navbar/NavbarPerfilUsuario";
   import Button from "@/app/components/botons/botons";
@@ -9,11 +8,13 @@
   import PhoneIcon from "@/app/components/Icons/Phone";
   import PerfilIcon from "@/app/components/Icons/Perfil"; // <-- Nuevo icono importado
   import Padlock from "@/app/components/Icons/Candado";
+  import { useRouter } from 'next/navigation';
   /* import { IdIcon } from "@/app/components/Icons/Doc_Identidad"; */
   import { useUser } from '@/hooks/useUser';
 
   export default function UserPerfilPage() {
     const user = useUser();
+    const router = useRouter();
     return (
       <>
         <NavbarPerfilUsuario />
@@ -44,6 +45,7 @@
                 icono={<UserIcon />}
                 defaultValue={user?.nombre_completo || ''}
                 className="focus:ring-[#11295B] border-[#11295B]"
+                readOnly={true}
                 
               />
 
@@ -56,6 +58,7 @@
                 icono={<MailIcon />}
                 defaultValue={user?.email || ''}
                 className="focus:ring-[#11295B] border-[#11295B]"
+                readOnly={true}
               />
 
               {/* Input Contraseña */}
@@ -66,6 +69,7 @@
                 defaultValue="********"
                 icono={<Padlock />}
                 className="focus:ring-[#11295B] border-[#11295B]"
+                readOnly={true}
               />
 
               {/* Inputs de Fecha y Teléfono (en fila) */}
@@ -80,6 +84,7 @@
                     icono={<CalendarIcon />}
                     defaultValue={user?.fecha_nacimiento?.split('T')[0] || ''}
                     className="focus:ring-[#11295B] border-[#11295B]"
+                    readOnly={true}
                   />
                 </div>
 
@@ -93,6 +98,7 @@
                     icono={<PhoneIcon />}
                     defaultValue={user?.telefono?.toString() || ''}
                     className="focus:ring-[#11295B] border-[#11295B]"
+                    readOnly={true}
                   />
                 </div>
               </div>
@@ -105,6 +111,7 @@
                   type="button"
                   Guardar="Cancelar"
                   deshabilitado={false}
+                  onClick={() => router.push('/home/homePage')}
                 />
               </div>
 

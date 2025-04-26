@@ -1,3 +1,4 @@
+/* import { backendip } from "@/libs/authServices"; */
 import styles from "./RegisterModal.module.css";
 import { useState } from "react";
 

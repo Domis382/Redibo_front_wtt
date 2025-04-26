@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+const validDomains = ['@gmail.com', '@hotmail.com', '@outlook.com', '@yahoo.com']; // <-- Aquí defines los dominios válidos
+
 const PasswordRecoveryModal = ({
   onClose,
   onPasswordRecoverySubmit,
@@ -14,11 +16,21 @@ const PasswordRecoveryModal = ({
   const [isValidEmail, setIsValidEmail] = useState(false);
 
   const validateEmail = (input: string) => {
-    const formatPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     setEmail(input);
+    
+    const emailDomain = input.slice(input.indexOf("@"));
 
-    if (!formatPattern.test(input)) {
-      setErrorMessage('Correo inválido. Usa el formato usuario@dominio.com.');
+    if (input.trim() === "") {
+      setErrorMessage("El correo no puede estar vacío.");
+      setIsValidEmail(false);
+    } else if (!input.includes("@") || !input.includes(".") || input.length < 5) {
+      setErrorMessage("Correo inválido, verifique si contiene '@' y '.'");
+      setIsValidEmail(false);
+    } else if (input.length == 70) {
+      setErrorMessage("El correo no debe superar los 70 caracteres.");
+      setIsValidEmail(false);
+    } else if (!validDomains.includes(emailDomain)) {
+      setErrorMessage("El dominio no es válido.");
       setIsValidEmail(false);
     } else {
       setErrorMessage('');
@@ -43,9 +55,8 @@ const PasswordRecoveryModal = ({
 
       if (!response.ok) throw new Error(data.message || 'Error desconocido');
 
-      // Verificar que el correo es correctamente pasado al siguiente controlador
       console.log('📧 Correo validado y pasando al siguiente paso:', email);
-      onPasswordRecoverySubmit(email); // Pasa al siguiente paso
+      onPasswordRecoverySubmit(email);
 
     } catch (error) {
       console.error('Error:', error);
@@ -55,7 +66,6 @@ const PasswordRecoveryModal = ({
         setErrorMessage('Error al recuperar la contraseña');
       }
     }
-    
   };
 
   return (
@@ -123,5 +133,3 @@ const PasswordRecoveryModal = ({
 };
 
 export default PasswordRecoveryModal;
-
-
