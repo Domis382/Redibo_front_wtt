@@ -281,7 +281,7 @@ export default function RegisterModal({
     } else {
       // Si pasa validaciones de formato, ahora verificamos si ya está en uso en BD
       try {
-        const phoneCheckResponse = await fetch("http://localhost:3001/api/check-phone", {
+        const phoneCheckResponse = await fetch("http://34.69.214.55:3001/api/check-phone", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ telefono: parseInt(cleanPhone) }),
