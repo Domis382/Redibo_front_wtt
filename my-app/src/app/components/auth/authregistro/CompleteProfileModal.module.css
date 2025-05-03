@@ -64,6 +64,7 @@
 }
 
 .input {
+  margin-bottom: 0.25rem;
   padding: 0.6rem 1rem;
   border: 1.5px solid var(--azul-oscuro);
   border-radius: 12px;

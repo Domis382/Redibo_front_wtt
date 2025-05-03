@@ -2,7 +2,7 @@ import styles from "./RegisterModal.module.css";
 import { useState } from "react";
 import CompleteProfileModal from "./CompleteProfileModal"; // ajusta si cambia el path
 import { useEffect } from "react";
-import { useSearchParams } from "next/navigation"; // o useLocation si usas react-router
+/* import { useSearchParams } from "next/navigation"; */ // o useLocation si usas react-router
 /* import { backendip } from "@/libs/authServices"; */
 
 export default function RegisterModal({
@@ -14,12 +14,25 @@ export default function RegisterModal({
 }) {
   const handleGoogleRegister = () => {
     try {
+      setLoading(true);
       localStorage.setItem("openCompleteProfileModal", "true");
-      window.location.href = "http://localhost:3001/api/auth/google";
+      localStorage.setItem("welcomeMessage", "¡Bienvenido a Redibo!");
+      // Pequeño delay para que el spinner alcance a mostrarse
+      setTimeout(() => {
+        window.location.href = "http://localhost:3001/api/auth/google";
+      }, 300); // 300ms = 0.3 segundos
     } catch (error) {
       console.error("Error en registro con Google", error);
+      setLoading(false);
     }
   };
+
+  /* Parte de las const*/
+  const [welcome, setWelcome] = useState("");
+
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  const [loading, setLoading] = useState(false);
 
   const [nameValue, setNameValue] = useState(
     localStorage.getItem("register_name") || ""
@@ -33,6 +46,7 @@ export default function RegisterModal({
   const [confirmPasswordValue, setConfirmPasswordValue] = useState(
     localStorage.getItem("register_confirmPassword") || ""
   );
+
   const [phoneValue, setPhoneValue] = useState(
     localStorage.getItem("register_phone") || ""
   );
@@ -56,14 +70,14 @@ export default function RegisterModal({
   const [phoneMessage, setPhoneMessage] = useState("");
   const [termsError, setTermsError] = useState(false);
 
-  const searchParams =
+  /*   const searchParams =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search)
-      : null;
+      : null; */
 
   const [showCompleteProfile, setShowCompleteProfile] = useState(false);
-  const [showCompleteProfileModal, setShowCompleteProfileModal] =
-    useState(false);
+  /* const [showCompleteProfileModal, setShowCompleteProfileModal] =
+    useState(false); */
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -81,12 +95,24 @@ export default function RegisterModal({
   ];
 
   useEffect(() => {
+    const message = localStorage.getItem("welcomeMessage");
+    if (message) {
+      setWelcome(message);
+      setShowWelcome(true);
+      localStorage.removeItem("welcomeMessage");
 
+      // Desaparecer después de 3 segundos
+      setTimeout(() => {
+        setShowWelcome(false);
+      }, 3000);
+    }
     const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get("error") === "cuentaExistente") {
-    alert("Este correo ya fue registrado de forma manual. Inicia sesión con tu contraseña.");
-    return;
-  }
+    if (urlParams.get("error") === "cuentaExistente") {
+      alert(
+        "Este correo ya fue registrado de forma manual. Inicia sesión con tu contraseña."
+      );
+      return;
+    }
 
     const googleComplete = window.location.search.includes(
       "googleComplete=true"
@@ -222,6 +248,7 @@ export default function RegisterModal({
     }
 
     // validacion de Confirmar contraseña
+
     if (confirmPassword.trim() === "") {
       setConfirmPasswordError(true);
       setConfirmPasswordMessage("Debes confirmar la contraseña");
@@ -236,7 +263,6 @@ export default function RegisterModal({
     }
 
     /*validacion de fecha*/
-
     const today = new Date();
     const selectedDate = new Date(
       Number(birthYear),
@@ -259,6 +285,10 @@ export default function RegisterModal({
       setBirthError(true);
       setBirthMessage("Debes tener al menos 18 años para registrarte");
       hasErrors = true;
+    } else if (age > 85) {
+      setBirthError(true);
+      setBirthMessage("La edad máxima permitida es de 85 años");
+      hasErrors = true;  
     } else {
       setBirthError(false);
       setBirthMessage("");
@@ -281,18 +311,21 @@ export default function RegisterModal({
     } else {
       // Si pasa validaciones de formato, ahora verificamos si ya está en uso en BD
       try {
-        const phoneCheckResponse = await fetch("http://localhost:3001/api/check-phone", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ telefono: parseInt(cleanPhone) }),
-        });
-    
+        const phoneCheckResponse = await fetch(
+          "http://localhost:3001/api/check-phone",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ telefono: parseInt(cleanPhone) }),
+          }
+        );
+
         const phoneCheckData = await phoneCheckResponse.json();
-    
+
         if (phoneCheckData.exists) {
           setPhoneError(true);
           setPhoneMessage("El número ya está registrado en el sistema.");
-          hasErrors = true; // 🔥 Muy importante: detener el submit
+          hasErrors = true; //  Muy importante: detener el submit
         } else {
           setPhoneError(false);
           setPhoneMessage("");
@@ -358,7 +391,7 @@ export default function RegisterModal({
       setError("No se pudo conectar al servidor.");
     }
 
-    setShowCompleteProfileModal(true);
+    /* setShowCompleteProfileModal(true); */
   };
 
   return (
@@ -379,37 +412,59 @@ export default function RegisterModal({
       {!showCompleteProfile && (
         <>
           <div className={styles.modal}>
+            {showWelcome && (
+              <div
+                className={`${styles.welcomeMessage} ${
+                  !showWelcome ? styles.fadeOut : ""
+                }`}
+              >
+                {welcome}
+              </div>
+            )}
+
             <h2 className={styles.title}>Registrarse</h2>
 
             {/* campo registro con google */}
             <div className={styles.googleBtn}>
-              <button type="button" onClick={handleGoogleRegister}>
+              <button
+                type="button"
+                onClick={handleGoogleRegister}
+                aria-label="Registrarse con Google"
+                disabled={loading}
+              >
                 <span className={styles.googleIcon}>
-                  {/* Logo de Google */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="-3 0 262 262"
-                    preserveAspectRatio="xMidYMid meet"
-                  >
-                    <path
-                      d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622 38.755 30.023 2.685.268c24.659-22.774 38.875-56.282 38.875-96.027"
-                      fill="#4285F4"
-                    />
-                    <path
-                      d="M130.55 261.1c35.248 0 64.839-11.605 86.453-31.622l-41.196-31.913c-11.024 7.688-25.82 13.055-45.257 13.055-34.523 0-63.824-22.773-74.269-54.25l-1.531.13-40.298 31.187-.527 1.465C35.393 231.798 79.49 261.1 130.55 261.1"
-                      fill="#34A853"
-                    />
-                    <path
-                      d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82 0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602l42.356-32.782"
-                      fill="#FBBC05"
-                    />
-                    <path
-                      d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0 79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
-                      fill="#EB4335"
-                    />
-                  </svg>
+                  {loading ? (
+                    <div className={styles.spinner} />
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="-3 0 262 262"
+                      preserveAspectRatio="xMidYMid meet"
+                      role="img"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622 38.755 30.023 2.685.268c24.659-22.774 38.875-56.282 38.875-96.027"
+                        fill="#4285F4"
+                      />
+                      <path
+                        d="M130.55 261.1c35.248 0 64.839-11.605 86.453-31.622l-41.196-31.913c-11.024 7.688-25.82 13.055-45.257 13.055-34.523 0-63.824-22.773-74.269-54.25l-1.531.13-40.298 31.187-.527 1.465C35.393 231.798 79.49 261.1 130.55 261.1"
+                        fill="#34A853"
+                      />
+                      <path
+                        d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82 0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602l42.356-32.782"
+                        fill="#FBBC05"
+                      />
+                      <path
+                        d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0 79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
+                        fill="#EB4335"
+                      />
+                    </svg>
+                  )}
                 </span>
-                <span className={styles.googleText}>Regístrate con Google</span>
+                <span className={styles.googleText}>
+                  {loading ? "Cargando..." : "Regístrate con Google"}
+                </span>
               </button>
             </div>
 
@@ -483,7 +538,7 @@ export default function RegisterModal({
                 </div>
               </div>
 
-              {/* campo email */}
+              {/*campo email correo electronico*/}
               <div
                 className={`${styles.halfInput} ${
                   emailError ? styles.errorInput : ""
@@ -575,11 +630,9 @@ export default function RegisterModal({
                       name="password"
                       value={passwordValue}
                       onChange={(e) => {
-                        setPasswordValue(e.target.value);
-                        localStorage.setItem(
-                          "register_password",
-                          e.target.value
-                        );
+                        const value = e.target.value;
+                        setPasswordValue(value);
+                        localStorage.setItem("register_password", value);
                       }}
                       placeholder={
                         passwordError ? "contraseña inválida" : "Contraseña"
@@ -786,7 +839,7 @@ export default function RegisterModal({
                 </div>
               </div>
 
-              {/* campo telefono */}
+              {/* campo teléfono */}
               <div
                 className={`${styles.halfInput} ${
                   phoneError ? styles.errorInput : ""
@@ -801,9 +854,9 @@ export default function RegisterModal({
                   }`}
                 >
                   <path
-                    fill-rule="evenodd"
+                    fillRule="evenodd"
                     d="M1.5 4.5a3 3 0 0 1 3-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 0 1-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 0 0 6.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 0 1 1.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 0 1-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5Z"
-                    clip-rule="evenodd"
+                    clipRule="evenodd"
                   />
                 </svg>
 
@@ -815,10 +868,23 @@ export default function RegisterModal({
                     name="phone"
                     value={phoneValue}
                     onChange={(e) => {
-                      setPhoneValue(e.target.value);
-                      localStorage.setItem("register_phone", e.target.value);
+                      const newValue = e.target.value;
+
+                      if (!/^\d*$/.test(newValue)) {
+                        setPhoneError(true);
+                        setPhoneMessage("Solo se permiten números");
+                        return; // Bloquea el cambio
+                      }
+
+                      // Si es válido:
+                      setPhoneValue(newValue);
+                      localStorage.setItem("register_phone", newValue);
+                      setPhoneError(false);
+                      setPhoneMessage("");
                     }}
                     maxLength={8}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder={
                       phoneError
                         ? "Número inválido"

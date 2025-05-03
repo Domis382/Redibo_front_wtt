@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -11,14 +11,24 @@ export default function NavbarInicioSesion() {
   //Token nombre de usuario
   const user = useUser();
 
+  //Foto de perfil navbar
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+
   const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado del menú
   const router = useRouter();
+  
+  useEffect(() => {
+    if (user?.foto_perfil) {
+      setProfilePhotoUrl(`http://localhost:3001${user.foto_perfil}`);
+    } else {
+      setProfilePhotoUrl(null); // Si no hay foto, se usa el icono por defecto
+    }
+  }, [user]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     router.push('/'); // 🔥 Te saca al login
   };
-
 
   return (
     <div className="px-6 md:px-20 lg:px-40 py-4  border-b border-[rgba(0,0,0,0.05)] font-[var(--fuente-principal)] bg-[var(--blanco)]">
@@ -60,6 +70,14 @@ export default function NavbarInicioSesion() {
                 {user?.nombre_completo || 'Nombre Usuario'}
             </button>
             <div className="flex items-center justify-center px-3 md:px-4">
+              {profilePhotoUrl ? (
+                <img
+                src={profilePhotoUrl}
+                alt="Foto de perfil"
+                className="w-6 h-6 md:w-8 md:h-8 object-cover rounded-full border border-white"
+                />
+                ) : (
+                
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -72,6 +90,7 @@ export default function NavbarInicioSesion() {
                 clipRule="evenodd"
                 />
                 </svg>
+              )}
             </div>
             
             {/* Componente menú */}

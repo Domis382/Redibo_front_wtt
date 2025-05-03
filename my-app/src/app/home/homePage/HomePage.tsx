@@ -17,7 +17,7 @@ export default function MainHome() {
   const router = useRouter();
   const user = useUser(); // 🚀
 
-  useEffect(() => {
+   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/');
