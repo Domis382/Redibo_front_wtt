@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/hooks/useUser';
 
 import Link from 'next/link';
-export default function NavbarInicioSesion() {
+export default function NavbarInicioSesion({ onBecomeHost }: { onBecomeHost: () => void }) {
   const [activeBtn, setActiveBtn] = useState(0);
   //Token nombre de usuario
   const user = useUser();
@@ -95,7 +95,7 @@ export default function NavbarInicioSesion() {
             
             {/* Componente menú */}
             {isMenuOpen && (
-              <ProfileMenu onLogout={handleLogout} router={router} />
+              <ProfileMenu onLogout={handleLogout} router={router} onBecomeHost={onBecomeHost} />
             )}
         </div>
       </nav>
@@ -103,7 +103,15 @@ export default function NavbarInicioSesion() {
   );
 }
 
-function ProfileMenu({ onLogout, router }: { onLogout: () => void; router: ReturnType<typeof useRouter> }) {
+function ProfileMenu({
+  onLogout,
+  router,
+  onBecomeHost
+}: {
+  onLogout: () => void;
+  router: ReturnType<typeof useRouter>;
+  onBecomeHost: () => void;
+}) {
   return (
     <div className="absolute right-0 top-full mt-2 w-40 bg-[var(--blanco)] border rounded-lg shadow-lg z-[9999] font-[var(--tamaña-bold)]">
       <button 
@@ -112,11 +120,14 @@ function ProfileMenu({ onLogout, router }: { onLogout: () => void; router: Retur
       >
         <h2 className="hover:text-[var(--blanco)]">Ver perfil</h2>
       </button>
+
       <button 
         className="block w-full text-left px-4 py-2 text-[var(--naranja)] hover:bg-[var(--naranja-46)]"
+        onClick={onBecomeHost}
       >
-        <h2 className="hover:text-[var(--blanco)]">X opción</h2>
+        <h2 className="hover:text-[var(--blanco)]">Quiero ser Host</h2>
       </button>
+
       <button 
         className="block w-full text-left px-4 py-2 text-[var(--naranja)] hover:bg-[var(--naranja-46)] rounded-b-lg"
         onClick={onLogout}
