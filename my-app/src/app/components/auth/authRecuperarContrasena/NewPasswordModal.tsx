@@ -26,27 +26,22 @@ const NewPasswordModal = ({
       setError("La contraseña no puede estar vacía");
       return false;
     }
-
     if (!/[A-Z]/.test(password)) {
       setError("Debe contener al menos una letra mayúscula");
       return false;
     }
-
     if (!/[a-z]/.test(password)) {
       setError("Debe contener al menos una letra minúscula");
       return false;
     }
-
     if (!/[0-9]/.test(password)) {
       setError("Debe contener al menos un número");
       return false;
     }
-
     if (!/[!@#$%^&*]/.test(password)) {
       setError("Debe tener al menos un carácter especial (!@#$...)");
       return false;
     }
-
     if (password.includes(" ")) {
       setError("No puede contener espacios");
       return false;
@@ -56,12 +51,10 @@ const NewPasswordModal = ({
       setError("La contraseña debe tener al menos 8 caracteres");
       return false;
     }
-
     if (password.length > 25) {
       setError("No puede tener más de 25 caracteres");
       return false;
     }
-
     setError(""); // Limpia el error si todo es válido
     return true;
   };
