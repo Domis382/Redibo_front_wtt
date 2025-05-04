@@ -116,7 +116,7 @@ export default function CompleteProfileModal({
       return;
     } else {
       try {
-        const res = await fetch("http://localhost:3001/api/check-phone", {
+        const res = await fetch("http://34.69.214.55:3001/api/check-phone", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ telefono: parseInt(cleanPhone) }),
@@ -142,7 +142,7 @@ export default function CompleteProfileModal({
     setError("");
 
     try {
-      const res = await fetch("http://localhost:3001/api/update-profile", {
+      const res = await fetch("http://34.69.214.55:3001/api/update-profile", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -329,7 +329,7 @@ export default function CompleteProfileModal({
                try {
                 const email = localStorage.getItem("google_email");
                 if (email) {
-                  await fetch("http://localhost:3001/api/delete-incomplete-user", {
+                  await fetch("http://34.69.214.55:3001/api/delete-incomplete-user", {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email }),

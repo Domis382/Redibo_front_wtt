@@ -66,7 +66,7 @@ const CompleteProfileModal: React.FC<Props> = ({
         formData.append("detalles_metodo", paymentData.efectivoDetalle);
       }
 
-      const response = await fetch("http://localhost:3001/api/registro-host", {
+      const response = await fetch("http://34.69.214.55:3001/api/registro-host", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

@@ -19,7 +19,7 @@ export default function RegisterModal({
       localStorage.setItem("welcomeMessage", "¡Bienvenido a Redibo!");
       // Pequeño delay para que el spinner alcance a mostrarse
       setTimeout(() => {
-        window.location.href = "http://localhost:3001/api/auth/google";
+        window.location.href = "http://34.69.214.55:3001/api/auth/google";
       }, 300); // 300ms = 0.3 segundos
     } catch (error) {
       console.error("Error en registro con Google", error);
@@ -312,7 +312,7 @@ export default function RegisterModal({
       // Si pasa validaciones de formato, ahora verificamos si ya está en uso en BD
       try {
         const phoneCheckResponse = await fetch(
-          "http://localhost:3001/api/check-phone",
+          "http://34.69.214.55:3001/api/check-phone",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -364,7 +364,7 @@ export default function RegisterModal({
         telefono: phone ? parseInt(cleanPhone) : null,
       };
 
-      const res = await fetch("http://localhost:3001/api/register", {
+      const res = await fetch("http://34.69.214.55:3001/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),

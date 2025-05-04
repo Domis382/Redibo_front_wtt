@@ -18,7 +18,7 @@ export const useUser = () => {
       if (!token) return;
 
       try {
-        const res = await fetch('http://localhost:3001/api/me', {
+        const res = await fetch('http://34.69.214.55:3001/api/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
