@@ -1,6 +1,9 @@
 /* import { backendip } from "@/libs/authServices"; */
 import styles from "./RegisterModal.module.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 export default function CompleteProfileModal({
   onComplete,
@@ -12,20 +15,61 @@ export default function CompleteProfileModal({
   onSuccess?: () => void;
 }) {
   const [name, setName] = useState("");
+  const [nameError, setNameError] = useState("");
   const [birthDay, setBirthDay] = useState("");
   const [birthMonth, setBirthMonth] = useState("");
   const [birthYear, setBirthYear] = useState("");
+  const [birthError, setBirthError] = useState("");
   const [phoneValue, setPhoneValue] = useState("");
   const [phoneError, setPhoneError] = useState(false);
   const [phoneMessage, setPhoneMessage] = useState("");
   const [error, setError] = useState("");
   const userEmail = localStorage.getItem("google_email");
+   
+  useEffect(() => {
+    if (!birthDay || !birthMonth || !birthYear) {
+      setBirthError("");
+      return;
+    }
+
+    const selectedDate = new Date(
+      Number(birthYear),
+      Number(birthMonth) - 1,
+      Number(birthDay)
+    );
+
+    const today = new Date();
+
+    if (selectedDate > today) {
+      setBirthError("La fecha no puede ser futura");
+      return;
+    }
+
+    let age = today.getFullYear() - selectedDate.getFullYear();
+    const m = today.getMonth() - selectedDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < selectedDate.getDate())) {
+      age--;
+    }
+
+    if (age < 18) {
+      setBirthError("Debes tener al menos 18 años");
+    } else if (age > 85) {
+      setBirthError("La edad máxima permitida es 85 años");
+    } else {
+      setBirthError("");
+    }
+  }, [birthDay, birthMonth, birthYear]); // 🔁 DEPENDENCIAS
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim()) {
       setError("El nombre es obligatorio");
+      return;
+    }
+
+    if (name.trim().length < 3) {
+      setNameError("El nombre debe tener al menos 3 caracteres");
       return;
     }
 
@@ -141,6 +185,7 @@ export default function CompleteProfileModal({
     onClose(); */
   };
 
+  
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
@@ -159,11 +204,21 @@ export default function CompleteProfileModal({
               name="name"
               value={name}
               placeholder="Ingrese su nombre completo"
+              maxLength={50}
               onChange={(e) => {
                 const input = e.target.value;
                 const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/;
+
                 if (regex.test(input) || input === "") {
                   setName(input);
+
+                  if (input.trim().length > 0 && input.trim().length < 3) {
+                      setNameError("El nombre debe tener al menos 3 caracteres");
+                 } else if (input.trim().length > 49) {
+                  setNameError("El nombre no debe exceder los 50 caracteres");
+                 } else {
+                   setNameError("");
+                 }
                 }
               }}
               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
@@ -171,6 +226,11 @@ export default function CompleteProfileModal({
               className={styles.input}
               required
             />
+            {nameError && (
+              <p style={{ color: "#E30000", fontSize: "0.75rem", marginTop: "0.5rem" }}>
+                {nameError}
+              </p>
+            )}
           </div>
 
           {/* Fecha de nacimiento */}
@@ -198,6 +258,11 @@ export default function CompleteProfileModal({
               </select>
             </div>
           </div>
+          {birthError && (
+            <p style={{ color: "#E30000", fontSize: "0.75rem", marginTop: "0.25rem" }}>
+               {birthError}
+           </p>
+          )}     
 
           {/* Teléfono */}
 <div className={styles.halfInput}>
@@ -257,8 +322,41 @@ export default function CompleteProfileModal({
           </button>
         </form>
 
-        <button className={styles.close} onClick={onClose}>✕</button>
+        <button
+           className={styles.close}
+           onClick={async() => {
+               toast.info("Registro cancelado", {
+                 position: "top-center",
+                  autoClose: 2500,
+                 hideProgressBar: false,
+                 closeOnClick: true,
+                 pauseOnHover: false,
+                 draggable: false,
+                 theme: "light",
+               });
+
+               try {
+                const email = localStorage.getItem("google_email");
+                if (email) {
+                  await fetch("http://localhost:3001/api/delete-incomplete-user", {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email }),
+                  });
+                }
+              } catch (err) {
+                console.error("No se pudo eliminar el usuario incompleto", err);
+              } 
+
+               setTimeout(() => {
+                onClose();
+              }, 2000); 
+             }}
+        >
+             ✕
+        </button>
       </div>
+      <ToastContainer />
     </div>
   );
 }

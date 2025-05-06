@@ -6,6 +6,7 @@ interface User {
   email: string;
   telefono?: number;
   fecha_nacimiento?: string;
+  foto_perfil?: string;
 }
 
 export const useUser = () => {
@@ -13,17 +14,18 @@ export const useUser = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem('token'); // 🚀 Trae el token del localStorage
+      const token = localStorage.getItem('token');
       if (!token) return;
 
       try {
-        const res = await fetch('http://localhost:3001/api/me', { // ⚠️ Cambia si deployas
+        const res = await fetch('http://localhost:3001/api/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         const data = await res.json();
-        setUser(data.user); // 🚀 Guarda el usuario en el estado
+        console.log('✅ User cargado:', data.user); // <-- DEBUG: para verificar que viene la foto
+        setUser(data.user);
       } catch (error) {
         console.error('Error al obtener el usuario:', error);
       }
