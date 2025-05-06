@@ -200,42 +200,51 @@ export default function CompleteProfileModal({
           </div>
 
           {/* Teléfono */}
-          <div className={styles.halfInput}>
-            <label htmlFor="phone">Teléfono</label>
-            <div className={styles.phoneWrapper}>
-              <span className={styles.prefix}>+591</span>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={phoneValue}
-                onChange={(e) => {
-                  const newValue = e.target.value;
+<div className={styles.halfInput}>
+  <label htmlFor="phone">Teléfono</label>
+  <div className={styles.phoneWrapper}>
+    <span className={styles.prefix}>+591</span>
+    <input
+      type="tel"
+      id="phone"
+      name="phone"
+      value={phoneValue}
+      onChange={(e) => {
+        const newValue = e.target.value;
 
-                  if (!/^\d*$/.test(newValue)) {
-                    setPhoneError(true);
-                    setPhoneMessage("Solo se permiten números");
-                    return;
-                  }
+        // Validar que solo se permitan números
+        if (!/^\d*$/.test(newValue)) {
+          setPhoneError(true);
+          setPhoneMessage("Solo se permiten números");
+          return;
+        }
 
-                  setPhoneValue(newValue);
-                  localStorage.setItem("register_phone", newValue);
-                  setPhoneError(false);
-                  setPhoneMessage("");
-                }}
-                maxLength={8}
-                inputMode="numeric"
-                pattern="[0-9]*"
-                placeholder={phoneError ? "Número inválido" : "Ingrese número de teléfono"}
-                className={`${styles.input3} ${phoneError ? styles.errorInput : ""}`}
-              />
-            </div>
-            {phoneError && phoneMessage && (
-              <p style={{ color: "#E30000", fontSize: "0.75rem", marginTop: "0.25rem" }}>
-                {phoneMessage}
-              </p>
-            )}
-          </div>
+        // Validar que el número tenga exactamente 8 dígitos
+        if (newValue.length > 8) {
+          setPhoneError(true);
+          setPhoneMessage("El número debe tener exactamente 8 dígitos");
+          return;
+        }
+
+        // Actualizar el estado solo si es válido
+        setPhoneValue(newValue);
+        localStorage.setItem("register_phone", newValue);
+        setPhoneError(false);
+        setPhoneMessage("");
+      }}
+      maxLength={8}
+      inputMode="numeric"
+      pattern="[0-9]*"
+      placeholder={phoneError ? "Número inválido" : "Ingrese número de teléfono"}
+      className={`${styles.input3} ${phoneError ? styles.errorInput : ""}`}
+    />
+  </div>
+  {phoneError && phoneMessage && (
+    <p style={{ color: "#E30000", fontSize: "0.75rem", marginTop: "0.25rem" }}>
+      {phoneMessage}
+    </p>
+  )}
+</div>
 
           {error && (
             <p style={{ color: "red", fontSize: "0.75rem", marginTop: "0.5rem" }}>
