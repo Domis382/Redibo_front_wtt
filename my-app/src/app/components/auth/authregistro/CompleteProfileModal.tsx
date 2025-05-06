@@ -24,10 +24,11 @@ export default function CompleteProfileModal({
   const [phoneMessage, setPhoneMessage] = useState("");
   const [error, setError] = useState("");
   const userEmail = localStorage.getItem("google_email");
-  const [termsAccepted, setTermsAccepted] = useState(false);  // Estado para controlar el checkbox
   const [termsError, setTermsError] = useState(false);  // Estado para manejar el error de aceptación
 
- 
+  //manejo de errores
+
+  let hasErrors = false;
 
   useEffect(() => {
     if (!birthDay || !birthMonth || !birthYear) {
@@ -65,7 +66,7 @@ export default function CompleteProfileModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-   
+    const form = e.target as HTMLFormElement;
     if (!name.trim()) {
       setError("El nombre es obligatorio");
       return;
@@ -80,13 +81,17 @@ export default function CompleteProfileModal({
       setError("Completa la fecha de nacimiento");
       return;
     }
-  // Verificación si el usuario ha aceptado los términos y condiciones
-  if (!termsAccepted) {
-    setTermsError(true); // Si no acepta, mostrar el error
-    return; // Detener el envío del formulario
-  } else {
-    setTermsError(false); // Restablecer error si está marcado
-  }
+  //validacion de terminos y condiciones
+  const terms = (form.elements.namedItem("terms") as HTMLInputElement)
+  .checked;
+
+if (!terms) {
+  setTermsError(true);
+  hasErrors = true;
+} else {
+  setTermsError(false);
+}
+if (hasErrors) return; // Si hay al menos un error, no continúa
 
     const birthDate = new Date(
       Number(birthYear),
@@ -372,39 +377,33 @@ export default function CompleteProfileModal({
               </p>
             )}
           </div>
- {/* Campo términos y condiciones */}
+ {/* campo terminos y condiciones */}
  <div className={styles.terms}>
-            <input
-              type="checkbox"
-              id="terms"
-              name="terms"
-              checked={termsAccepted}
-              onChange={(e) => setTermsAccepted(e.target.checked)} // Actualiza el estado cuando cambia el checkbox
-              required
-            />
-            <label htmlFor="terms" className={styles.termsLabel}>
-              <span className={styles.termsText}>
-                He leído y acepto los{" "}
-                <a href="/home/terminos" className={styles.termsLink}>
-                  Términos y condiciones
-                </a>{" "}
-                de la página
-              </span>
-            </label>
-          </div>
+                <input type="checkbox" id="terms" name="terms" />
+                <label htmlFor="terms" className={styles.termsLabel}>
+                  <span className={styles.termsText}>
+                    He leído y acepto los{" "}
+                    <a href="/home/terminos" className={styles.termsLink}>
+                      Términos y condiciones
+                    </a>{" "}
+                    de la página
+                  </span>
+                </label>
+              </div>
 
-          {/* Mostrar mensaje de error si no acepta los términos */}
-          {termsError && (
-            <p
-              style={{
-                color: "#E30000", // Rojo para el mensaje de error
-                fontSize: "0.75rem", // Ajuste de tamaño de texto
-                marginTop: "0.25rem", // Espaciado entre el checkbox y el mensaje
-              }}
-            >
-              Debes aceptar los términos y condiciones para continuar
-            </p>
-          )}
+              {termsError && (
+                <p
+                  style={{
+                    color: "#E30000",
+                    fontSize: "0.75rem",
+                    marginTop: "0.2rem",
+                  }}
+                >
+                  Debes aceptar los términos y condiciones para continuar
+                </p>
+              )}
+
+
 
           {error && (
             <p
