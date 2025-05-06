@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 export default function CompleteProfileModal({
   onComplete,
   onClose,
@@ -25,7 +24,11 @@ export default function CompleteProfileModal({
   const [phoneMessage, setPhoneMessage] = useState("");
   const [error, setError] = useState("");
   const userEmail = localStorage.getItem("google_email");
-   
+  const [termsAccepted, setTermsAccepted] = useState(false);  // Estado para controlar el checkbox
+  const [termsError, setTermsError] = useState(false);  // Estado para manejar el error de aceptación
+
+ 
+
   useEffect(() => {
     if (!birthDay || !birthMonth || !birthYear) {
       setBirthError("");
@@ -62,7 +65,7 @@ export default function CompleteProfileModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+   
     if (!name.trim()) {
       setError("El nombre es obligatorio");
       return;
@@ -77,13 +80,20 @@ export default function CompleteProfileModal({
       setError("Completa la fecha de nacimiento");
       return;
     }
+  // Verificación si el usuario ha aceptado los términos y condiciones
+  if (!termsAccepted) {
+    setTermsError(true); // Si no acepta, mostrar el error
+    return; // Detener el envío del formulario
+  } else {
+    setTermsError(false); // Restablecer error si está marcado
+  }
 
     const birthDate = new Date(
       Number(birthYear),
       Number(birthMonth) - 1,
       Number(birthDay)
     );
-      //Validaciones Fecha de nacimiento
+    //Validaciones Fecha de nacimiento
     if (birthDate > new Date()) {
       setError("La fecha de nacimiento no puede ser futura");
       return;
@@ -160,7 +170,9 @@ export default function CompleteProfileModal({
         const data = await res.json();
 
         if (data.message?.includes("registrado con email")) {
-          alert("Esta cuenta ya fue registrada con correo y contraseña. Por favor inicia sesión manualmente.");
+          alert(
+            "Esta cuenta ya fue registrada con correo y contraseña. Por favor inicia sesión manualmente."
+          );
           return; //No continuar ni cerrar el modal
         }
 
@@ -185,12 +197,18 @@ export default function CompleteProfileModal({
     onClose(); */
   };
 
-  
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <h2 className={styles.title}>REGISTRARSE</h2>
-        <p style={{ textAlign: "center", marginBottom: "1rem", fontWeight: 500, color: "blue" }}>
+        <p
+          style={{
+            textAlign: "center",
+            marginBottom: "1rem",
+            fontWeight: 500,
+            color: "blue",
+          }}
+        >
           ¡Ya casi acabas!
         </p>
 
@@ -213,12 +231,12 @@ export default function CompleteProfileModal({
                   setName(input);
 
                   if (input.trim().length > 0 && input.trim().length < 3) {
-                      setNameError("El nombre debe tener al menos 3 caracteres");
-                 } else if (input.trim().length > 49) {
-                  setNameError("El nombre no debe exceder los 50 caracteres");
-                 } else {
-                   setNameError("");
-                 }
+                    setNameError("El nombre debe tener al menos 3 caracteres");
+                  } else if (input.trim().length > 49) {
+                    setNameError("El nombre no debe exceder los 50 caracteres");
+                  } else {
+                    setNameError("");
+                  }
                 }
               }}
               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
@@ -227,7 +245,13 @@ export default function CompleteProfileModal({
               required
             />
             {nameError && (
-              <p style={{ color: "#E30000", fontSize: "0.75rem", marginTop: "0.5rem" }}>
+              <p
+                style={{
+                  color: "#E30000",
+                  fontSize: "0.75rem",
+                  marginTop: "0.5rem",
+                }}
+              >
                 {nameError}
               </p>
             )}
@@ -237,82 +261,155 @@ export default function CompleteProfileModal({
           <div className={styles.halfInput}>
             <label>Fecha de nacimiento</label>
             <div className={styles.birthInputs}>
-              <select value={birthDay} onChange={(e) => setBirthDay(e.target.value)} className={styles.select}>
+              <select
+                value={birthDay}
+                onChange={(e) => setBirthDay(e.target.value)}
+                className={styles.select}
+              >
                 <option value="">DD</option>
                 {[...Array(31)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
                 ))}
               </select>
-              <select value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} className={styles.select}>
+              <select
+                value={birthMonth}
+                onChange={(e) => setBirthMonth(e.target.value)}
+                className={styles.select}
+              >
                 <option value="">MM</option>
                 {[...Array(12)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
                 ))}
               </select>
-              <select value={birthYear} onChange={(e) => setBirthYear(e.target.value)} className={styles.select}>
+              <select
+                value={birthYear}
+                onChange={(e) => setBirthYear(e.target.value)}
+                className={styles.select}
+              >
                 <option value="">AAAA</option>
                 {[...Array(100)].map((_, i) => {
                   const year = new Date().getFullYear() - i;
-                  return <option key={year} value={year}>{year}</option>;
+                  return (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  );
                 })}
               </select>
             </div>
           </div>
           {birthError && (
-            <p style={{ color: "#E30000", fontSize: "0.75rem", marginTop: "0.25rem" }}>
-               {birthError}
-           </p>
-          )}     
+            <p
+              style={{
+                color: "#E30000",
+                fontSize: "0.75rem",
+                marginTop: "0.25rem",
+              }}
+            >
+              {birthError}
+            </p>
+          )}
 
           {/* Teléfono */}
-<div className={styles.halfInput}>
-  <label htmlFor="phone">Teléfono</label>
-  <div className={styles.phoneWrapper}>
-    <span className={styles.prefix}>+591</span>
-    <input
-      type="tel"
-      id="phone"
-      name="phone"
-      value={phoneValue}
-      onChange={(e) => {
-        const newValue = e.target.value;
+          <div className={styles.halfInput}>
+            <label htmlFor="phone">Teléfono</label>
+            <div className={styles.phoneWrapper}>
+              <span className={styles.prefix}>+591</span>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={phoneValue}
+                onChange={(e) => {
+                  const newValue = e.target.value;
 
-        // Validar que solo se permitan números
-        if (!/^\d*$/.test(newValue)) {
-          setPhoneError(true);
-          setPhoneMessage("Solo se permiten números");
-          return;
-        }
+                  // Validar que solo se permitan números
+                  if (!/^\d*$/.test(newValue)) {
+                    setPhoneError(true);
+                    setPhoneMessage("Solo se permiten números");
+                    return;
+                  }
 
-        // Validar que el número tenga exactamente 8 dígitos
-        if (newValue.length > 8) {
-          setPhoneError(true);
-          setPhoneMessage("El número debe tener exactamente 8 dígitos");
-          return;
-        }
+                  // Validar que el número tenga exactamente 8 dígitos
+                  if (newValue.length > 8) {
+                    setPhoneError(true);
+                    setPhoneMessage(
+                      "El número debe tener exactamente 8 dígitos"
+                    );
+                    return;
+                  }
 
-        // Actualizar el estado solo si es válido
-        setPhoneValue(newValue);
-        localStorage.setItem("register_phone", newValue);
-        setPhoneError(false);
-        setPhoneMessage("");
-      }}
-      maxLength={8}
-      inputMode="numeric"
-      pattern="[0-9]*"
-      placeholder={phoneError ? "Número inválido" : "Ingrese número de teléfono"}
-      className={`${styles.input3} ${phoneError ? styles.errorInput : ""}`}
-    />
-  </div>
-  {phoneError && phoneMessage && (
-    <p style={{ color: "#E30000", fontSize: "0.75rem", marginTop: "0.25rem" }}>
-      {phoneMessage}
-    </p>
-  )}
-</div>
+                  // Actualizar el estado solo si es válido
+                  setPhoneValue(newValue);
+                  localStorage.setItem("register_phone", newValue);
+                  setPhoneError(false);
+                  setPhoneMessage("");
+                }}
+                maxLength={8}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                placeholder={
+                  phoneError ? "Número inválido" : "Ingrese número de teléfono"
+                }
+                className={`${styles.input3} ${
+                  phoneError ? styles.errorInput : ""
+                }`}
+              />
+            </div>
+            {phoneError && phoneMessage && (
+              <p
+                style={{
+                  color: "#E30000",
+                  fontSize: "0.75rem",
+                  marginTop: "0.25rem",
+                }}
+              >
+                {phoneMessage}
+              </p>
+            )}
+          </div>
+ {/* Campo términos y condiciones */}
+ <div className={styles.terms}>
+            <input
+              type="checkbox"
+              id="terms"
+              name="terms"
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)} // Actualiza el estado cuando cambia el checkbox
+              required
+            />
+            <label htmlFor="terms" className={styles.termsLabel}>
+              <span className={styles.termsText}>
+                He leído y acepto los{" "}
+                <a href="/home/terminos" className={styles.termsLink}>
+                  Términos y condiciones
+                </a>{" "}
+                de la página
+              </span>
+            </label>
+          </div>
+
+          {/* Mostrar mensaje de error si no acepta los términos */}
+          {termsError && (
+            <p
+              style={{
+                color: "#E30000", // Rojo para el mensaje de error
+                fontSize: "0.75rem", // Ajuste de tamaño de texto
+                marginTop: "0.25rem", // Espaciado entre el checkbox y el mensaje
+              }}
+            >
+              Debes aceptar los términos y condiciones para continuar
+            </p>
+          )}
 
           {error && (
-            <p style={{ color: "red", fontSize: "0.75rem", marginTop: "0.5rem" }}>
+            <p
+              style={{ color: "red", fontSize: "0.75rem", marginTop: "0.5rem" }}
+            >
               {error}
             </p>
           )}
@@ -323,41 +420,43 @@ export default function CompleteProfileModal({
         </form>
 
         <button
-           className={styles.close}
-           onClick={async() => {
-               toast.info("Registro cancelado", {
-                 position: "top-center",
-                  autoClose: 2500,
-                 hideProgressBar: false,
-                 closeOnClick: true,
-                 pauseOnHover: false,
-                 draggable: false,
-                 theme: "light",
-               });
+          className={styles.close}
+          onClick={async () => {
+            toast.info("Registro cancelado", {
+              position: "top-center",
+              autoClose: 2500,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: false,
+              draggable: false,
+              theme: "light",
+            });
 
-               try {
-                const email = localStorage.getItem("google_email");
-                if (email) {
-                  await fetch("http://localhost:3001/api/delete-incomplete-user", {
+            try {
+              const email = localStorage.getItem("google_email");
+              if (email) {
+                await fetch(
+                  "http://localhost:3001/api/delete-incomplete-user",
+                  {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email }),
-                  });
-                }
-              } catch (err) {
-                console.error("No se pudo eliminar el usuario incompleto", err);
-              } 
+                  }
+                );
+              }
+            } catch (err) {
+              console.error("No se pudo eliminar el usuario incompleto", err);
+            }
 
-               setTimeout(() => {
-                onClose();
-              }, 2000); 
-             }}
+            setTimeout(() => {
+              onClose();
+            }, 2000);
+          }}
         >
-             ✕
+          ✕
         </button>
       </div>
       <ToastContainer />
     </div>
   );
 }
-
