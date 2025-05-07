@@ -18,7 +18,7 @@ export const useUser = () => {
       if (!token) return;
 
       try {
-        const res = await fetch('http://localhost:3001/api/me', {
+        const res = await fetch('https://redibo-back-wtt.vercel.app/api/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
