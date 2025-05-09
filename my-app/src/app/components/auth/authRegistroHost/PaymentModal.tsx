@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { X, CreditCard, QrCode, ZoomIn, DollarSign, Trash2 } from "lucide-react";
+import { X, CreditCard, QrCode /* ZoomIn */, DollarSign, /* Trash2 */ } from "lucide-react";
 
 interface Props {
   onClose: () => Promise<void>;
@@ -90,13 +90,13 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
       }
     };
   
-    const handleDeleteImage = () => {
+    /* const handleDeleteImage = () => {
       setQrImage(null);
       setPreviewImg(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = ''; // 🛠️ Forzar reset para permitir re-subir la misma imagen
       }
-    };
+    }; */
     
 
   const handleQrImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

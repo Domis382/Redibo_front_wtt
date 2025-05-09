@@ -72,9 +72,14 @@ export default function NombreEditable({ initialValue, campoEnEdicion, setCampoE
       setCampoEnEdicion(null);
       setFeedback('Nombre actualizado exitosamente.');
       setTimeout(() => setFeedback(''), 3000);
-    } catch (err: any) {
-      console.error('❌ Error al actualizar:', err.message);
-      setErrorMensaje(err.message || 'Hubo un error al guardar.');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error('❌ Error al actualizar:', err.message);
+        setErrorMensaje(err.message || 'Hubo un error al guardar.');
+      } else {
+        console.error('❌ Error desconocido:', err);
+        setErrorMensaje('Hubo un error desconocido al guardar.');
+      }
     }
   };
 

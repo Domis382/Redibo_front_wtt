@@ -28,9 +28,13 @@ export default function FotoDePerfilEditable({setImagePreviewUrl }: Props) {
       setImagePreviewUrl(null);
       setFeedback('Foto de perfil eliminada exitosamente.');
       setAlertType('success');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      setFeedback(error.message || 'Error al eliminar la foto.');
+      if (error instanceof Error) {
+        setFeedback(error.message || 'Error al eliminar la foto.');
+      } else {
+        setFeedback('Error al eliminar la foto.');
+      }
       setAlertType('error');
     }
   

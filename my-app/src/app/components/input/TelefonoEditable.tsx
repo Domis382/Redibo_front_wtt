@@ -55,7 +55,7 @@ export default function TelefonoEditable({ initialValue, campoEnEdicion, setCamp
       setCampoEnEdicion(null);
       setFeedback('Teléfono actualizado exitosamente.');
       setTimeout(() => setFeedback(''), 3000);
-    } catch (err) {
+    } catch {
       setFeedback('Hubo un error al guardar.');
     }
   };
