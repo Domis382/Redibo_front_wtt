@@ -8,6 +8,7 @@ interface Props {
     placa: string;
     soat: string;
     imagenes: File[];
+    id_vehiculo: number; // ← agregar esta línea
   }) => void;
   onClose: () => void;
 }
