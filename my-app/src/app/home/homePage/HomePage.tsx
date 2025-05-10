@@ -63,10 +63,19 @@ export default function MainHome() {
     setActiveModal("paymentData");
   };
 
-  const handlePaymentDataSubmit = (data: { tipo: "card" | "qr" | "cash"; cardNumber?: string; expiration?: string; cvv?: string; cardHolder?: string; qrImage?: File | null; efectivoDetalle?: string }) => {
-    setPaymentData(data);
-    setActiveModal('completeProfile');
-  };
+  const handlePaymentDataSubmit = (data: {
+  tipo: "card" | "qr" | "cash";
+  cardNumber?: string;
+  expiration?: string;
+  cvv?: string;
+  cardHolder?: string;
+  qrImage?: File | null;
+  efectivoDetalle?: string;
+}) => {
+  setPaymentData(data);
+  setActiveModal('completeProfile');
+};
+
 
   const handleRegistrationComplete = () => {
     setActiveModal(null);
