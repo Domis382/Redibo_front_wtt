@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import { X, CreditCard, QrCode /* ZoomIn */, DollarSign, /* Trash2 */ } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { X, CreditCard, QrCode, DollarSign } from "lucide-react";
 
 interface Props {
   onClose: () => Promise<void>;
@@ -27,33 +27,269 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
   const [previewImg, setPreviewImg] = useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const currentYear = new Date().getFullYear();
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
+  // Validación en tiempo real para cada campo cuando cambia
+  useEffect(() => {
+    if (selectedOption === "card" && touched.cardNumber) {
+      validateCardNumber(cardNumber);
+    }
+  }, [cardNumber, touched.cardNumber]);
 
-    if (!termsAccepted) newErrors.terms = "Debes aceptar los términos";
+  useEffect(() => {
+    if (selectedOption === "card" && touched.expiryDate) {
+      validateExpiryDate(expiryDate);
+    }
+  }, [expiryDate, touched.expiryDate]);
 
-    if (selectedOption === "card") {
-      const num = cardNumber.replace(/\s/g, "");
-      if (!/^\d{16}$/.test(num)) newErrors.cardNumber = "Ingresa los 16 dígitos de tu tarjeta";
-      if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiryDate)) newErrors.expiryDate = "Fecha inválida (MM/YY)";
-      if (!/^\d{3,4}$/.test(cvv)) newErrors.cvv = "CVV inválido (3 o 4 dígitos)";
-      if (!cardHolder.trim()) newErrors.cardHolder = "Nombre del titular requerido";
-    } else if (selectedOption === "qr") {
-      if (!qrImage) {
-        newErrors.qrImage = "Debes subir una imagen QR";
-      } else if (!/\.(jpg|jpeg|png)$/i.test(qrImage.name)) {
-        newErrors.qrImage = "Formato inválido. Solo .jpg, .jpeg o .png";
-      }
-    } else if (selectedOption === "cash") {
-      if (!cashDetail.trim()) newErrors.cashDetail = "Debes proporcionar una descripción para el efectivo";
+  useEffect(() => {
+    if (selectedOption === "card" && touched.cvv) {
+      validateCVV(cvv);
+    }
+  }, [cvv, touched.cvv]);
+
+  useEffect(() => {
+    if (selectedOption === "card" && touched.cardHolder) {
+      validateCardHolder(cardHolder);
+    }
+  }, [cardHolder, touched.cardHolder]);
+
+  // Funciones de validación individuales
+  const validateCardNumber = (value: string) => {
+    const cleanValue = value.replace(/\s/g, "");
+    if (!cleanValue) {
+      setErrors(prev => ({ ...prev, cardNumber: "Número de tarjeta requerido" }));
+      return false;
+    } else if (!/^\d+$/.test(cleanValue)) {
+      setErrors(prev => ({ ...prev, cardNumber: "Solo números permitidos" }));
+      return false;
+    } else if (cleanValue.length !== 16) {
+      setErrors(prev => ({ ...prev, cardNumber: "Debe tener 16 dígitos" }));
+      return false;
     } else {
-      newErrors.method = "Selecciona una forma de pago";
+      setErrors(prev => ({ ...prev, cardNumber: "" }));
+      return true;
+    }
+  };
+
+  const validateExpiryDate = (value: string) => {
+    if (!value) {
+      setErrors(prev => ({ ...prev, expiryDate: "Fecha requerida" }));
+      return false;
+    } else if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(value)) {
+      setErrors(prev => ({ ...prev, expiryDate: "Fecha inválida (MM/YY)" }));
+      return false;
+    } else {
+      // Validar que la fecha esté en el rango válido 2020-2030
+      const [month, year] = value.split('/');
+      const expYear = 2000 + parseInt(year);
+      
+      // Solo permitir años entre 2020 y 2030
+      if (expYear < 2020 || expYear > 2030) {
+        setErrors(prev => ({ ...prev, expiryDate: "El año debe estar entre 2020 y 2030" }));
+        return false;
+      }
+      
+      // Si el año es 2020, verificar que el mes no haya pasado ya
+      if (expYear === 2020) {
+        const currentMonth = new Date().getMonth() + 1; // getMonth() es 0-indexed
+        if (parseInt(month) < currentMonth) {
+          setErrors(prev => ({ ...prev, expiryDate: "Tarjeta expirada" }));
+          return false;
+        }
+      }
+      
+      setErrors(prev => ({ ...prev, expiryDate: "" }));
+      return true;
+    }
+  };
+
+  const validateCVV = (value: string) => {
+    if (!value) {
+      setErrors(prev => ({ ...prev, cvv: "CVV requerido" }));
+      return false;
+    } else if (!/^\d+$/.test(value)) {
+      setErrors(prev => ({ ...prev, cvv: "Solo números permitidos" }));
+      return false;
+    } else if (value.length !== 3) { // Exactamente 3 dígitos para Bolivia
+      setErrors(prev => ({ ...prev, cvv: "CVV debe ser de 3 dígitos" }));
+      return false;
+    } else {
+      setErrors(prev => ({ ...prev, cvv: "" }));
+      return true;
+    }
+  };
+
+  const validateCardHolder = (value: string) => {
+    if (!value.trim()) {
+      setErrors(prev => ({ ...prev, cardHolder: "Nombre del titular requerido" }));
+      return false;
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+      setErrors(prev => ({ ...prev, cardHolder: "Solo caracteres alfabéticos permitidos" }));
+      return false;
+    } else if (/\s{2,}/.test(value)) {
+      setErrors(prev => ({ ...prev, cardHolder: "No se puede poner doble espacio" }));
+      return false;
+    } else {
+      setErrors(prev => ({ ...prev, cardHolder: "" }));
+      return true;
+    }
+  };
+
+  // Manejo de tarjeta de crédito con formato automático
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Permitir solo números y limitar a 19 caracteres (16 números + 3 espacios)
+    if (value === "" || /^[\d\s]+$/.test(value) && value.length <= 19) {
+      // Formatear el número con espacios cada 4 dígitos
+      const formattedValue = value
+        .replace(/\s/g, '') // Eliminar espacios existentes
+        .match(/.{1,4}/g)?.join(' ') || value; // Agregar espacios cada 4 dígitos
+      
+      setCardNumber(formattedValue);
+      
+      // Validación en tiempo real mientras escribe
+      if (touched.cardNumber) {
+        validateCardNumber(formattedValue);
+      }
+    }
+  };
+
+  // Manejo de fecha de expiración con formato automático
+  const handleExpiryDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    
+    // Solo permitir números y / y limitar a 5 caracteres (MM/YY)
+    if (value === "" || /^[\d/]+$/.test(value) && value.length <= 5) {
+      // Añadir la / automáticamente después de 2 dígitos
+      if (value.length === 2 && !value.includes('/') && expiryDate.length < value.length) {
+        setExpiryDate(value + '/');
+      } else if (value.length === 2 && value.includes('/')) {
+        setExpiryDate(value.replace('/', ''));
+      } else {
+        setExpiryDate(value);
+      }
+      
+      // Validación en tiempo real mientras escribe
+      if (touched.expiryDate && value.length === 5) {
+        validateExpiryDate(value);
+      }
+    }
+  };
+
+  // Manejo de CVV con restricciones
+  const handleCVVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Solo permitir números y limitar a exactamente 3 dígitos para Bolivia
+    if (value === "" || (/^\d+$/.test(value) && value.length <= 3)) {
+      setCvv(value);
+      
+      // Validación en tiempo real mientras escribe
+      if (touched.cvv) {
+        validateCVV(value);
+      }
+    }
+  };
+
+  // Manejo del nombre del titular
+  const handleCardHolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    // Reemplazar múltiples espacios consecutivos con un solo espacio
+    value = value.replace(/\s{2,}/g, " ");
+    
+    // Permitir solo letras, espacios y limitar a un máximo de 30 caracteres
+    if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(value) && value.length <= 30) {
+      setCardHolder(value);
+    }
+    
+    // Validación en tiempo real mientras escribe
+    if (touched.cardHolder) {
+      validateCardHolder(value);
+    }
+  };
+
+  // Marcar campo como tocado cuando el usuario interactúa con él
+  const handleBlur = (field: string) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    
+    // Validar al perder el foco
+    switch (field) {
+      case 'cardNumber':
+        validateCardNumber(cardNumber);
+        break;
+      case 'expiryDate':
+        validateExpiryDate(expiryDate);
+        break;
+      case 'cvv':
+        validateCVV(cvv);
+        break;
+      case 'cardHolder':
+        validateCardHolder(cardHolder);
+        break;
+      case 'cashDetail':
+        if (!cashDetail.trim()) {
+          setErrors(prev => ({ ...prev, cashDetail: "Debes proporcionar una descripción para el efectivo" }));
+        } else {
+          setErrors(prev => ({ ...prev, cashDetail: "" }));
+        }
+        break;
+    }
+  };
+
+  // Validación completa antes de enviar
+  const validate = () => {
+    let isValid = true;
+    let newErrors: Record<string, string> = {};
+
+    if (!termsAccepted) {
+      newErrors.terms = "Debes aceptar los términos";
+      isValid = false;
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (!selectedOption) {
+      newErrors.method = "Selecciona una forma de pago";
+      isValid = false;
+    }
+
+    if (selectedOption === "card") {
+      // Marcar todos los campos como tocados para mostrar todos los errores
+      setTouched({
+        cardNumber: true,
+        expiryDate: true,
+        cvv: true,
+        cardHolder: true
+      });
+      
+      const isCardNumberValid = validateCardNumber(cardNumber);
+      const isExpiryDateValid = validateExpiryDate(expiryDate);
+      const isCVVValid = validateCVV(cvv);
+      const isCardHolderValid = validateCardHolder(cardHolder);
+      
+      isValid = isCardNumberValid && isExpiryDateValid && isCVVValid && isCardHolderValid && termsAccepted;
+    } else if (selectedOption === "qr") {
+      if (!qrImage) {
+        setErrors(prev => ({ ...prev, qrImage: "Debes subir una imagen QR" }));
+        isValid = false;
+      } else if (!/\.(jpg|jpeg|png)$/i.test(qrImage.name)) {
+        setErrors(prev => ({ ...prev, qrImage: "Formato inválido. Solo .jpg, .jpeg o .png" }));
+        isValid = false;
+      }
+    } else if (selectedOption === "cash") {
+      if (!cashDetail.trim()) {
+        setErrors(prev => ({ ...prev, cashDetail: "Debes proporcionar una descripción para el efectivo" }));
+        isValid = false;
+      }
+    }
+    
+    // Actualizar errors con newErrors si hay nuevos errores
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(prev => ({ ...prev, ...newErrors }));
+    }
+    
+    return isValid;
   };
 
   const handleSubmit = () => {
@@ -81,27 +317,38 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      const file = e.dataTransfer.files?.[0];
-      if (file) {
-        setQrImage(file);
-        setPreviewImg(URL.createObjectURL(file));
-        setErrors((prev) => ({ ...prev, qrImage: "" }));
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      // Validar extensión del archivo
+      if (!/\.(jpg|jpeg|png)$/i.test(file.name)) {
+        setErrors(prev => ({ ...prev, qrImage: "Formato inválido. Solo .jpg, .jpeg o .png" }));
+        return;
       }
-    };
+      
+      setQrImage(file);
+      setPreviewImg(URL.createObjectURL(file));
+      setErrors((prev) => ({ ...prev, qrImage: "" }));
+    }
+  };
   
-    /* const handleDeleteImage = () => {
-      setQrImage(null);
-      setPreviewImg(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''; // 🛠️ Forzar reset para permitir re-subir la misma imagen
-      }
-    }; */
+  const handleDeleteImage = () => {
+    setQrImage(null);
+    setPreviewImg(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''; // Forzar reset para permitir re-subir la misma imagen
+    }
+  };
     
-
   const handleQrImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validar extensión del archivo
+      if (!/\.(jpg|jpeg|png)$/i.test(file.name)) {
+        setErrors(prev => ({ ...prev, qrImage: "Formato inválido. Solo .jpg, .jpeg o .png" }));
+        return;
+      }
+      
       setQrImage(file);
       setPreviewImg(URL.createObjectURL(file));
       setErrors((prev) => ({ ...prev, qrImage: "" }));
@@ -118,8 +365,9 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
     setPreviewImg(null);
     setCashDetail("");
     setErrors({});
+    setTouched({});
     setTermsAccepted(false);
-    await onClose(); // ← esto eliminará el vehículo si el usuario cancela
+    await onClose(); // Esto eliminará el vehículo si el usuario cancela
   };
 
   return (
@@ -143,16 +391,59 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
             </div>
             {selectedOption === "card" && (
               <div className="p-4 space-y-3">
-                <input value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} placeholder="1111 2222 3333 4444" className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.cardNumber ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} />
-                {errors.cardNumber && <p className="text-sm text-[#DC2626] text-center -mt-2">{errors.cardNumber}</p>}
-                <div className="grid grid-cols-2 gap-2">
-                  <input value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} placeholder="MM/YY" className={`border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.expiryDate ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} />
-                  <input value={cvv} onChange={(e) => setCvv(e.target.value)} placeholder="CVV" className={`border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.cvv ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} />
+                <div>
+                  <input 
+                    value={cardNumber} 
+                    onChange={handleCardNumberChange}
+                    onBlur={() => handleBlur('cardNumber')} 
+                    placeholder="1111 2222 3333 4444" 
+                    className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.cardNumber ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} 
+                  />
+                  {touched.cardNumber && errors.cardNumber && (
+                    <p className="text-xs text-[#DC2626] mt-1">{errors.cardNumber}</p>
+                  )}
                 </div>
-                {errors.expiryDate && <p className="text-sm text-[#DC2626] text-center -mt-2">{errors.expiryDate}</p>}
-                {errors.cvv && <p className="text-sm text-[#DC2626] text-center -mt-2">{errors.cvv}</p>}
-                <input value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} placeholder="Nombre del titular" className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.cardHolder ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} />
-                {errors.cardHolder && <p className="text-sm text-[#DC2626] text-center -mt-2">{errors.cardHolder}</p>}
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <input 
+                      value={expiryDate} 
+                      onChange={handleExpiryDateChange}
+                      onBlur={() => handleBlur('expiryDate')} 
+                      placeholder="MM/YY" 
+                      className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.expiryDate ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} 
+                    />
+                    {touched.expiryDate && errors.expiryDate && (
+                      <p className="text-xs text-[#DC2626] mt-1">{errors.expiryDate}</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <input 
+                      value={cvv} 
+                      onChange={handleCVVChange}
+                      onBlur={() => handleBlur('cvv')} 
+                      placeholder="CVV" 
+                      className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.cvv ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} 
+                    />
+                    {touched.cvv && errors.cvv && (
+                      <p className="text-xs text-[#DC2626] mt-1">{errors.cvv}</p>
+                    )}
+                  </div>
+                </div>
+                
+                <div>
+                  <input 
+                    value={cardHolder} 
+                    onChange={handleCardHolderChange}
+                    onBlur={() => handleBlur('cardHolder')} 
+                    placeholder="Nombre del titular" 
+                    className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.cardHolder ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} 
+                  />
+                  {touched.cardHolder && errors.cardHolder && (
+                    <p className="text-xs text-[#DC2626] mt-1">{errors.cardHolder}</p>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -188,8 +479,7 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setQrImage(null);
-                          setPreviewImg(null);
+                          handleDeleteImage();
                         }}
                         className="absolute top-1 right-1 bg-[#11295B] p-1 rounded-full hover:bg-[#11295B]"
                         title="Eliminar imagen"
@@ -205,7 +495,7 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/jpg,image/png"
                   onChange={handleQrImageChange}
                   className="hidden"
                 />
@@ -219,7 +509,6 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
             )}
           </div>
 
-
           {/* EFECTIVO */}
           <div className={`rounded-xl shadow-md border-[1.5px] ${selectedOption === "cash" ? "border-[#11295B]" : "border-gray-300"}`}>
             <div className="flex items-center pl-4 py-3 border-b cursor-pointer" onClick={() => setSelectedOption("cash")}> 
@@ -228,8 +517,16 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
             </div>
             {selectedOption === "cash" && (
               <div className="p-4">
-                <textarea value={cashDetail} onChange={(e) => setCashDetail(e.target.value)} placeholder="Descripcion" className={`w-full h-24 border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none resize-none ${errors.cashDetail ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} />
-                {errors.cashDetail && <p className="text-sm text-[#DC2626] text-center mt-2">{errors.cashDetail}</p>}
+                <textarea 
+                  value={cashDetail} 
+                  onChange={(e) => setCashDetail(e.target.value)}
+                  onBlur={() => handleBlur('cashDetail')} 
+                  placeholder="Descripción" 
+                  className={`w-full h-24 border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none resize-none ${errors.cashDetail ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`}
+                />
+                {touched.cashDetail && errors.cashDetail && (
+                  <p className="text-sm text-[#DC2626] mt-2">{errors.cashDetail}</p>
+                )}
               </div>
             )}
           </div>
@@ -237,15 +534,30 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
 
         {/* TÉRMINOS */}
         <div className="flex items-start mt-6">
-          <input type="checkbox" checked={termsAccepted} onChange={() => setTermsAccepted(!termsAccepted)} className="mt-1 mr-2 accent-[#FCA311]" />
+          <input 
+            type="checkbox" 
+            checked={termsAccepted} 
+            onChange={() => setTermsAccepted(!termsAccepted)} 
+            className="mt-1 mr-2 accent-[#FCA311]" 
+          />
           <label className="text-xs text-gray-600">He leído y acepto los <span className="text-[#FCA311] font-medium">Términos y condiciones</span>.</label>
         </div>
         {errors.terms && <p className="text-sm text-[#DC2626] text-center mt-2">{errors.terms}</p>}
         {errors.method && <p className="text-sm text-[#DC2626] text-center mt-2">{errors.method}</p>}
 
         <div className="flex justify-between mt-8">
-          <button onClick={onClose} className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-8 rounded-full">Cancelar</button>
-          <button onClick={handleSubmit} className="bg-[#FCA311] hover:bg-[#e29510] text-white font-semibold py-2 px-8 rounded-full">Registrar</button>
+          <button 
+            onClick={handleCancel} 
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-8 rounded-full"
+          >
+            Cancelar
+          </button>
+          <button 
+            onClick={handleSubmit} 
+            className="bg-[#FCA311] hover:bg-[#e29510] text-white font-semibold py-2 px-8 rounded-full"
+          >
+            Registrar
+          </button>
         </div>
       </div>
     </div>

@@ -54,10 +54,26 @@ const CompleteProfileModal: React.FC<Props> = ({
       // Método de pago
       if (paymentData.cardNumber) {
         formData.append("tipo", "card");
-        formData.append("numero_tarjeta", paymentData.cardNumber);
-        formData.append("fecha_expiracion", paymentData.expiration ?? "");
-        formData.append("cvv", paymentData.cvv ?? "");
-        formData.append("titular", paymentData.cardHolder ?? "");
+        
+        // Elimina espacios en blanco y formatea el número de tarjeta
+        const cleanCardNumber = paymentData.cardNumber.replace(/\s/g, "");
+        formData.append("numero_tarjeta", cleanCardNumber);
+        
+        // Asegúrate de que la fecha de expiración tenga el formato correcto
+        if (paymentData.expiration) {
+          formData.append("fecha_expiracion", paymentData.expiration);
+        }
+        
+        // El CVV podría ser problemático por razones de seguridad
+        // Asegúrate de que el backend lo espera y procesa correctamente
+        if (paymentData.cvv) {
+          formData.append("cvv", paymentData.cvv);
+        }
+        
+        // Enviar el titular de la tarjeta
+        if (paymentData.cardHolder) {
+          formData.append("titular", paymentData.cardHolder);
+        }
       } else if (paymentData.qrImage) {
         formData.append("tipo", "qr");
         formData.append("qrImage", paymentData.qrImage);
@@ -66,15 +82,30 @@ const CompleteProfileModal: React.FC<Props> = ({
         formData.append("detalles_metodo", paymentData.efectivoDetalle);
       }
 
+      // Para debugging - ver qué datos estamos enviando
+      console.log("Enviando datos de pago:", {
+        tipo: paymentData.cardNumber ? "card" : paymentData.qrImage ? "qr" : "cash",
+        ...(paymentData.cardNumber && {
+          numero_tarjeta: paymentData.cardNumber.replace(/\s/g, ""),
+          fecha_expiracion: paymentData.expiration,
+          titular: paymentData.cardHolder
+        })
+      });
+
       const response = await fetch("https://redibo-back-wtt.vercel.app/api/registro-host", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          // No incluimos Content-Type cuando enviamos FormData con archivos
         },
         body: formData,
       });
 
+      // Log de la respuesta para depuración
+      console.log("Estado de respuesta:", response.status, response.statusText);
+      
       const result = await response.json();
+      console.log("Respuesta completa:", result);
 
       if (response.ok) {
         setSuccess(true);
@@ -82,11 +113,19 @@ const CompleteProfileModal: React.FC<Props> = ({
           onComplete();
         }, 2000);
       } else {
-        setError(result.message || "Ocurrió un error al registrar.");
+        // Mensaje de error más detallado
+        const errorMsg = result.message || 
+                      (result.error ? `Error: ${result.error}` : "Ocurrió un error al registrar.");
+        console.error("Error de respuesta:", errorMsg);
+        setError(errorMsg);
       }
     } catch (err) {
       console.error("❌ Error al enviar datos:", err);
-      setError("Error de red o servidor.");
+      if (err instanceof Error) {
+        setError(`Error de red o servidor: ${err.message || "Desconocido"}`);
+      } else {
+        setError("Error de red o servidor: Desconocido");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -216,4 +255,3 @@ const CompleteProfileModal: React.FC<Props> = ({
 };
 
 export default CompleteProfileModal;
-
