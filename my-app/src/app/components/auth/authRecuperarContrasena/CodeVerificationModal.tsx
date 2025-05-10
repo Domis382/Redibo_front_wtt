@@ -37,6 +37,7 @@ const CodeVerificationModal = ({
       const response = await fetch('https://redibo-back-wtt.vercel.app/api/verify-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
         body: JSON.stringify({ code }),
       });
       

@@ -73,6 +73,7 @@ export default function FotoDePerfilEditable({setImagePreviewUrl }: Props) {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          credentials: "include",
           body: formData,
         });
   

@@ -8,6 +8,7 @@ export const updateUserField = async (campo: string, valor: string) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`, // asegúrate que sea Bearer
       },
+      credentials: "include",
       body: JSON.stringify({ campo, valor }),
     });
   
@@ -28,6 +29,7 @@ export const updateUserField = async (campo: string, valor: string) => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      credentials: "include",
       body: formData,
     });
   
@@ -47,6 +49,7 @@ export const updateUserField = async (campo: string, valor: string) => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      credentials: "include",
     });
   
     if (!res.ok) {

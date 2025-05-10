@@ -119,6 +119,7 @@ export default function CompleteProfileModal({
         const res = await fetch("https://redibo-back-wtt.vercel.app/api/check-phone", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ telefono: parseInt(cleanPhone) }),
         });
 
@@ -332,6 +333,7 @@ export default function CompleteProfileModal({
                   await fetch("https://redibo-back-wtt.vercel.app/api/delete-incomplete-user", {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
+                    credentials: "include",
                     body: JSON.stringify({ email }),
                   });
                 }

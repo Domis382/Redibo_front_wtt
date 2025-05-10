@@ -25,6 +25,7 @@ export const useUser = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          credentials: "include",
         });
         const data = await res.json();
         console.log('✅ User cargado:', data.user); // <-- DEBUG: para verificar que viene la foto

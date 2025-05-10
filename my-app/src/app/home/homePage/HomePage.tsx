@@ -132,6 +132,7 @@ export default function MainHome() {
               await fetch(`https://redibo-back-wtt.vercel.app/api/vehiculos/eliminar-vehiculo/${vehicleData.id_vehiculo}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
+                credentials: "include",
               });
             }
             setActiveModal(null);

@@ -316,6 +316,7 @@ export default function RegisterModal({
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "include",
             body: JSON.stringify({ telefono: parseInt(cleanPhone) }),
           }
         );
@@ -367,6 +368,7 @@ export default function RegisterModal({
       const res = await fetch("https://redibo-back-wtt.vercel.app/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(user),
       });
 

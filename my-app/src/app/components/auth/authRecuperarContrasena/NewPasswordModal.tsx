@@ -94,6 +94,7 @@ const NewPasswordModal = ({
       const response = await fetch('https://redibo-back-wtt.vercel.app/api/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
         body: JSON.stringify({  newPassword }),
       });
 

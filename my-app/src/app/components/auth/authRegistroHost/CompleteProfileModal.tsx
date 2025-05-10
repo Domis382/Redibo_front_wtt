@@ -98,6 +98,7 @@ const CompleteProfileModal: React.FC<Props> = ({
           Authorization: `Bearer ${token}`,
           // No incluimos Content-Type cuando enviamos FormData con archivos
         },
+        credentials: "include",
         body: formData,
       });
 
