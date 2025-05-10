@@ -35,7 +35,7 @@ export default function TerminosLogin() {
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background-principal)]">
       <header>
-          <NavbarInicioSesion/>
+          <NavbarInicioSesion onBecomeHost={() => console.log('Become Host clicked')} />
       </header>
 
 
