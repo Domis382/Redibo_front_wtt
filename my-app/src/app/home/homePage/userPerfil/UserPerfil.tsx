@@ -23,11 +23,12 @@ export default function UserPerfilPage() {
 
 
   useEffect(() => {
-    if (user?.foto_perfil) {
-      setImagePreviewUrl(`https://redibo-back-wtt.vercel.app${user.foto_perfil}`);
-      console.log('✅ Foto cargada:', `https://redibo-back-wtt.vercel.app${user.foto_perfil}`);
-    }
-  }, [user]);
+  if (user?.foto_perfil) {
+    const fullUrl = `https://redibo-back-wtt.vercel.app${user.foto_perfil}`;
+    setImagePreviewUrl(fullUrl);
+    console.log('✅ Foto cargada:', fullUrl);
+  }
+}, [user]);
   if (!user) return null;
   return (
     <>
