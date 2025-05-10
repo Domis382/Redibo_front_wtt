@@ -2,8 +2,6 @@ import styles from "./RegisterModal.module.css";
 import { useState } from "react";
 import CompleteProfileModal from "./CompleteProfileModal"; // ajusta si cambia el path
 import { useEffect } from "react";
-/* import { useSearchParams } from "next/navigation"; */ // o useLocation si usas react-router
-/* import { backendip } from "@/libs/authServices"; */
 
 export default function RegisterModal({
   onClose,
