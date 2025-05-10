@@ -8,19 +8,21 @@ interface Props {
   initialValue: string;
   campoEnEdicion: string | null;
   setCampoEnEdicion: (campo: string | null) => void;
+  edicionesUsadas: number;
 }
 
-export default function NombreEditable({ initialValue, campoEnEdicion, setCampoEnEdicion }: Props) {
+export default function NombreEditable({ initialValue, campoEnEdicion, setCampoEnEdicion, edicionesUsadas, }: Props) {
   const [valor, setValor] = useState(initialValue);
   const [editando, setEditando] = useState(false);
   const [valorTemporal, setValorTemporal] = useState(initialValue);
   const [feedback, setFeedback] = useState('');
   const [errorMensaje, setErrorMensaje] = useState('');
-
+  const [infoExtra, setInfoExtra] = useState('');
+  const [bloqueado, setBloqueado] = useState(edicionesUsadas >= 3);
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let nuevoValor = e.target.value;
 
-    // Capitalizar primera letra automáticamente
     if (nuevoValor.length > 0) {
       nuevoValor = nuevoValor.charAt(0).toUpperCase() + nuevoValor.slice(1);
     }
@@ -66,19 +68,36 @@ export default function NombreEditable({ initialValue, campoEnEdicion, setCampoE
 
     try {
       const response = await updateUserField('nombre_completo', nombreAValidar);
+      
+      if (response.message === 'No hubo cambios en el valor.') {
+        setEditando(false);
+        setCampoEnEdicion(null);
+        setFeedback('No se realizaron cambios.');
+        return;
+      }
       console.log('✅ Nombre actualizado en la base de datos:', response);
+
+      setFeedback('Teléfono actualizado exitosamente.');
+
+      if (response.edicionesRestantes === 0) {
+        setBloqueado(true);
+        setInfoExtra('Has alcanzado el límite de 3 ediciones para este campo. Para más cambios, contacta al soporte.');
+
+      } else if (response.infoExtra) {
+        setInfoExtra(response.infoExtra);
+      } else if (response.edicionesRestantes > 0) setInfoExtra(`Puedes editar este campo ${response.edicionesRestantes} ${response.edicionesRestantes === 1 ? 'vez' : 'veces'} más.`);
+
       setValor(nombreAValidar);
       setEditando(false);
       setCampoEnEdicion(null);
-      setFeedback('Nombre actualizado exitosamente.');
-      setTimeout(() => setFeedback(''), 3000);
-    } catch (err: unknown) {
+      setTimeout(() => setFeedback(''), 5000);
+    } catch (err) {
       if (err instanceof Error) {
         console.error('❌ Error al actualizar:', err.message);
-        setErrorMensaje(err.message || 'Hubo un error al guardar.');
+        setErrorMensaje(err.message || 'Hubo un error al guardar.' );
       } else {
         console.error('❌ Error desconocido:', err);
-        setErrorMensaje('Hubo un error desconocido al guardar.');
+        setErrorMensaje('Hubo un error al guardar.');
       }
     }
   };
@@ -100,7 +119,7 @@ export default function NombreEditable({ initialValue, campoEnEdicion, setCampoE
           type="text"
           value={editando ? valorTemporal : valor}
           onChange={handleInputChange}
-          readOnly={!editando}
+          readOnly={!editando || bloqueado}
           placeholder={editando ? 'Ingresar nombre completo' : ''}
           className={`w-full border-2 rounded-md px-10 py-2 focus:outline-none focus:ring-1 shadow-[0_4px_10px_rgba(0,0,0,0.4)] ${
             editando
@@ -113,13 +132,11 @@ export default function NombreEditable({ initialValue, campoEnEdicion, setCampoE
           <UserIcon />
         </div>
 
-        {!editando && (
+        {!editando && !bloqueado && (
           <div
-            className={`absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 cursor-pointer ${
-              campoEnEdicion && campoEnEdicion !== 'nombre' ? 'opacity-50 pointer-events-none' : ''
-            }`}
+            className={`absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 cursor-pointer ${campoEnEdicion && campoEnEdicion !== 'nombre' ? 'opacity-50 pointer-events-none' : ''}`}
             onClick={() => {
-              if (!campoEnEdicion) {
+              if (!campoEnEdicion && !bloqueado) {
                 setEditando(true);
                 setCampoEnEdicion('nombre');
               }
@@ -130,11 +147,12 @@ export default function NombreEditable({ initialValue, campoEnEdicion, setCampoE
         )}
       </div>
 
-      {errorMensaje && (
-        <p className="text-red-500 text-sm mt-1">{errorMensaje}</p>
-      )}
+      {errorMensaje && <p className="text-[var(--rojo)] text-sm mb-1 mt-1">{errorMensaje}</p>}
       {feedback && !errorMensaje && (
-        <p className="text-green-600 text-sm mt-1">{feedback}</p>
+        <p className="text-[var(--verde)] text-sm mb-1 mt-1 font-semibold">{feedback}</p>
+      )}
+      {infoExtra && !errorMensaje && (
+        <p className="text-[var(--rojo)] text-sm font-semibold mb-1 mt-1">{infoExtra}</p>
       )}
 
       {editando && (
