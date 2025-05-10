@@ -147,7 +147,7 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
 
     if (Object.keys(nuevosErrores).length > 0) return;
 
-    onNext({ placa, soat, imagenes });
+    onNext({ placa, soat, imagenes, id_vehiculo: 0 }); // Replace 0 with the appropriate id_vehiculo value
   };
 
   return (
