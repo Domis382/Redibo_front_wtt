@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 export default function CompleteProfileModal({
   onComplete,
   onClose,
@@ -25,7 +24,7 @@ export default function CompleteProfileModal({
   const [phoneMessage, setPhoneMessage] = useState("");
   const [error, setError] = useState("");
   const userEmail = localStorage.getItem("google_email");
-   
+
   useEffect(() => {
     if (!birthDay || !birthMonth || !birthYear) {
       setBirthError("");
@@ -83,7 +82,7 @@ export default function CompleteProfileModal({
       Number(birthMonth) - 1,
       Number(birthDay)
     );
-      //Validaciones Fecha de nacimiento
+    //Validaciones Fecha de nacimiento
     if (birthDate > new Date()) {
       setError("La fecha de nacimiento no puede ser futura");
       return;
@@ -116,12 +115,20 @@ export default function CompleteProfileModal({
       return;
     } else {
       try {
-        const res = await fetch("https://redibo-back-wtt.vercel.app/api/check-phone", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ telefono: parseInt(cleanPhone) }),
-        });
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          "https://redibo-back-wtt.vercel.app/api/check-phone",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+
+            credentials: "include",
+            body: JSON.stringify({ telefono: parseInt(cleanPhone) }),
+          }
+        );
 
         const data = await res.json();
         if (data.exists) {
@@ -143,25 +150,30 @@ export default function CompleteProfileModal({
     setError("");
 
     try {
-      const res = await fetch("https://redibo-back-wtt.vercel.app/api/update-profile", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          email: userEmail,
-          nombre_completo: name.trim(),
-          fecha_nacimiento: birthDate.toISOString(),
-          telefono: "+591" + cleanPhone,
-        }),
-      });
+      const res = await fetch(
+        "https://redibo-back-wtt.vercel.app/api/update-profile",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            email: userEmail,
+            nombre_completo: name.trim(),
+            fecha_nacimiento: birthDate.toISOString(),
+            telefono: "+591" + cleanPhone,
+          }),
+        }
+      );
 
       if (!res.ok) {
         const data = await res.json();
 
         if (data.message?.includes("registrado con email")) {
-          alert("Esta cuenta ya fue registrada con correo y contraseña. Por favor inicia sesión manualmente.");
+          alert(
+            "Esta cuenta ya fue registrada con correo y contraseña. Por favor inicia sesión manualmente."
+          );
           return; //No continuar ni cerrar el modal
         }
 
@@ -186,12 +198,18 @@ export default function CompleteProfileModal({
     onClose(); */
   };
 
-  
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <h2 className={styles.title}>REGISTRARSE</h2>
-        <p style={{ textAlign: "center", marginBottom: "1rem", fontWeight: 500, color: "blue" }}>
+        <p
+          style={{
+            textAlign: "center",
+            marginBottom: "1rem",
+            fontWeight: 500,
+            color: "blue",
+          }}
+        >
           ¡Ya casi acabas!
         </p>
 
@@ -214,12 +232,12 @@ export default function CompleteProfileModal({
                   setName(input);
 
                   if (input.trim().length > 0 && input.trim().length < 3) {
-                      setNameError("El nombre debe tener al menos 3 caracteres");
-                 } else if (input.trim().length > 49) {
-                  setNameError("El nombre no debe exceder los 50 caracteres");
-                 } else {
-                   setNameError("");
-                 }
+                    setNameError("El nombre debe tener al menos 3 caracteres");
+                  } else if (input.trim().length > 49) {
+                    setNameError("El nombre no debe exceder los 50 caracteres");
+                  } else {
+                    setNameError("");
+                  }
                 }
               }}
               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
@@ -228,7 +246,13 @@ export default function CompleteProfileModal({
               required
             />
             {nameError && (
-              <p style={{ color: "#E30000", fontSize: "0.75rem", marginTop: "0.5rem" }}>
+              <p
+                style={{
+                  color: "#E30000",
+                  fontSize: "0.75rem",
+                  marginTop: "0.5rem",
+                }}
+              >
                 {nameError}
               </p>
             )}
@@ -238,32 +262,58 @@ export default function CompleteProfileModal({
           <div className={styles.halfInput}>
             <label>Fecha de nacimiento</label>
             <div className={styles.birthInputs}>
-              <select value={birthDay} onChange={(e) => setBirthDay(e.target.value)} className={styles.select}>
+              <select
+                value={birthDay}
+                onChange={(e) => setBirthDay(e.target.value)}
+                className={styles.select}
+              >
                 <option value="">DD</option>
                 {[...Array(31)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
                 ))}
               </select>
-              <select value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} className={styles.select}>
+              <select
+                value={birthMonth}
+                onChange={(e) => setBirthMonth(e.target.value)}
+                className={styles.select}
+              >
                 <option value="">MM</option>
                 {[...Array(12)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
                 ))}
               </select>
-              <select value={birthYear} onChange={(e) => setBirthYear(e.target.value)} className={styles.select}>
+              <select
+                value={birthYear}
+                onChange={(e) => setBirthYear(e.target.value)}
+                className={styles.select}
+              >
                 <option value="">AAAA</option>
                 {[...Array(100)].map((_, i) => {
                   const year = new Date().getFullYear() - i;
-                  return <option key={year} value={year}>{year}</option>;
+                  return (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  );
                 })}
               </select>
             </div>
           </div>
           {birthError && (
-            <p style={{ color: "#E30000", fontSize: "0.75rem", marginTop: "0.25rem" }}>
-               {birthError}
-           </p>
-          )}     
+            <p
+              style={{
+                color: "#E30000",
+                fontSize: "0.75rem",
+                marginTop: "0.25rem",
+              }}
+            >
+              {birthError}
+            </p>
+          )}
 
           {/* Teléfono */}
           <div className={styles.halfInput}>
@@ -292,19 +342,31 @@ export default function CompleteProfileModal({
                 maxLength={8}
                 inputMode="numeric"
                 pattern="[0-9]*"
-                placeholder={phoneError ? "Número inválido" : "Ingrese número de teléfono"}
-                className={`${styles.input3} ${phoneError ? styles.errorInput : ""}`}
+                placeholder={
+                  phoneError ? "Número inválido" : "Ingrese número de teléfono"
+                }
+                className={`${styles.input3} ${
+                  phoneError ? styles.errorInput : ""
+                }`}
               />
             </div>
             {phoneError && phoneMessage && (
-              <p style={{ color: "#E30000", fontSize: "0.75rem", marginTop: "0.25rem" }}>
+              <p
+                style={{
+                  color: "#E30000",
+                  fontSize: "0.75rem",
+                  marginTop: "0.25rem",
+                }}
+              >
                 {phoneMessage}
               </p>
             )}
           </div>
 
           {error && (
-            <p style={{ color: "red", fontSize: "0.75rem", marginTop: "0.5rem" }}>
+            <p
+              style={{ color: "red", fontSize: "0.75rem", marginTop: "0.5rem" }}
+            >
               {error}
             </p>
           )}
@@ -315,42 +377,44 @@ export default function CompleteProfileModal({
         </form>
 
         <button
-           className={styles.close}
-           onClick={async() => {
-               toast.info("Registro cancelado", {
-                 position: "top-center",
-                  autoClose: 2500,
-                 hideProgressBar: false,
-                 closeOnClick: true,
-                 pauseOnHover: false,
-                 draggable: false,
-                 theme: "light",
-               });
+          className={styles.close}
+          onClick={async () => {
+            toast.info("Registro cancelado", {
+              position: "top-center",
+              autoClose: 2500,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: false,
+              draggable: false,
+              theme: "light",
+            });
 
-               try {
-                const email = localStorage.getItem("google_email");
-                if (email) {
-                  await fetch("https://redibo-back-wtt.vercel.app/api/delete-incomplete-user", {
+            try {
+              const email = localStorage.getItem("google_email");
+              if (email) {
+                await fetch(
+                  "https://redibo-back-wtt.vercel.app/api/delete-incomplete-user",
+                  {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
                     body: JSON.stringify({ email }),
-                  });
-                }
-              } catch (err) {
-                console.error("No se pudo eliminar el usuario incompleto", err);
-              } 
+                  }
+                );
+              }
+            } catch (err) {
+              console.error("No se pudo eliminar el usuario incompleto", err);
+            }
 
-               setTimeout(() => {
-                onClose();
-              }, 2000); 
-             }}
+            setTimeout(() => {
+              onClose();
+            }, 2000);
+          }}
         >
-             ✕
+          ✕
         </button>
       </div>
       <ToastContainer />
     </div>
   );
 }
-
