@@ -16,6 +16,6 @@ export async function login(email: string, password: string) {
   return res.json();
 }
 
-export const backendip = () => {
-  return "http://34.69.214.55:3001";
-};
+/* export const backendip = () => {
+  return "http://redibo-back-wtt.vercel.app";
+}; */
