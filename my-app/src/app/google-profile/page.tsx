@@ -16,7 +16,7 @@ export default function GoogleProfilePage() {
     birthDate: string;
   }) => {
     try {
-      const res = await fetch('http://localhost:3001/api/google/complete-profile', {
+      const res = await fetch('https://redibo-back-wtt.vercel.app/api/google/complete-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // mantiene la sesión de Google activa

@@ -19,7 +19,7 @@ export default function NavbarInicioSesion({ onBecomeHost }: { onBecomeHost: () 
   
   useEffect(() => {
     if (user?.foto_perfil) {
-      setProfilePhotoUrl(`http://localhost:3001${user.foto_perfil}`);
+      setProfilePhotoUrl(`https://redibo-back-wtt.vercel.app${user.foto_perfil}`);
     } else {
       setProfilePhotoUrl(null); // Si no hay foto, se usa el icono por defecto
     }

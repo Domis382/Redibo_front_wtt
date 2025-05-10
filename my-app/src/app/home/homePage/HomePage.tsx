@@ -129,7 +129,7 @@ export default function MainHome() {
           onClose={async () => {
             if (vehicleData?.id_vehiculo) {
               const token = localStorage.getItem("token");
-              await fetch(`http://localhost:3001/api/vehiculos/eliminar-vehiculo/${vehicleData.id_vehiculo}`, {
+              await fetch(`https://redibo-back-wtt.vercel.app/api/vehiculos/eliminar-vehiculo/${vehicleData.id_vehiculo}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
               });
