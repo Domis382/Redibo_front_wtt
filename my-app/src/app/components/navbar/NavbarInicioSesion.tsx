@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/hooks/useUser';
 
 import Link from 'next/link';
-export default function NavbarInicioSesion({ onBecomeHost }: { onBecomeHost: () => void }) {
+export default function NavbarInicioSesion({ onBecomeHost }: { onBecomeHost?: () => void }) {
   const [activeBtn, setActiveBtn] = useState(0);
   //Token nombre de usuario
   const user = useUser();
@@ -110,7 +110,7 @@ function ProfileMenu({
 }: {
   onLogout: () => void;
   router: ReturnType<typeof useRouter>;
-  onBecomeHost: () => void;
+  onBecomeHost?: () => void;
 }) {
   return (
     <div className="absolute right-0 top-full mt-2 w-40 bg-[var(--blanco)] border rounded-lg shadow-lg z-[9999] font-[var(--tamaña-bold)]">
@@ -123,7 +123,8 @@ function ProfileMenu({
 
       <button 
         className="block w-full text-left px-4 py-2 text-[var(--naranja)] hover:bg-[var(--naranja-46)]"
-        onClick={onBecomeHost}
+        onClick={() => onBecomeHost?.()}
+
       >
         <h2 className="hover:text-[var(--blanco)]">Quiero ser Host</h2>
       </button>
