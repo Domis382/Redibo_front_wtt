@@ -1,12 +1,5 @@
-import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
-
-const Home = dynamic(() => import('./Home'), { ssr: false });
+import Home from './Home';
 
 export default function HomePage() {
-  return (
-    <Suspense fallback={<div>Cargando...</div>}>
-      <Home />
-    </Suspense>
-  );
+  return <Home />;
 }
