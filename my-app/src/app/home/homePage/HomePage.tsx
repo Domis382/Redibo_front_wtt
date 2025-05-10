@@ -59,11 +59,28 @@ export default function MainHome() {
     setActiveModal("paymentData");
   };
 
-  const handlePaymentDataSubmit = (data: { cardNumber: string; expiration: string; cvv: string; cardHolder: string }) => {
-    setPaymentData(data);
-    setActiveModal('completeProfile');
+  const handlePaymentDataSubmit = (data: {
+    tipo: "card" | "qr" | "cash";
+    cardNumber?: string;
+    expiration?: string;
+    cvv?: string;
+    cardHolder?: string;
+    qrImage?: File | null;
+    efectivoDetalle?: string;
+  }) => {
+    if (data.tipo === "card") {
+      setPaymentData({
+        cardNumber: data.cardNumber || "",
+        expiration: data.expiration || "",
+        cvv: data.cvv || "",
+        cardHolder: data.cardHolder || "",
+      });
+      setActiveModal("completeProfile");
+    } else {
+      console.warn("Tipo de pago no soportado aún:", data.tipo);
+    }
   };
-
+  
   const handleRegistrationComplete = () => {
     setActiveModal(null);
     displayToast('¡Tu registro como host fue completado exitosamente!');
