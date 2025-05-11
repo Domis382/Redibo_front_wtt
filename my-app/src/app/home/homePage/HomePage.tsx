@@ -12,7 +12,7 @@ import RegisterModal from '@/app/components/auth/authregistro/RegisterModal';
 import VehicleDataModal from '@/app/components/auth/authRegistroHost/VehicleDataModal';
 import PaymentModal from '@/app/components/auth/authRegistroHost/PaymentModal';
 import CompleteProfileModal from '@/app/components/auth/authRegistroHost/CompleteProfileModal';
-import SuccessModal from '@/app/home/Driver/SuccesModal/successModal';
+/* import SuccessModal from '@/app/home/Driver/SuccesModal/successModal'; */
 
 export default function MainHome() {
   const [activeModal, setActiveModal] = useState<'login' | 'register' | 'vehicleData' | 'paymentData' | 'completeProfile' | 'succesModal' | null>(null);

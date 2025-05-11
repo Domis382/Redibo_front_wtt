@@ -20,9 +20,9 @@ const UserBrowser = () => {
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Removed unused error state
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  /* const [showSuccessModal, setShowSuccessModal] = useState(false); */
   const router = useRouter();
 
 
@@ -37,7 +37,7 @@ const UserBrowser = () => {
     }
   
     // Cargar usuarios desde backend
-    fetch("http://localhost:3001/api/usuarios/renters")
+    fetch("https://redibo-back-wtt.vercel.app/api/usuarios/renters")
       .then((res) => res.json())
       .then((data) => setAllUsers(data))
       .catch((err) => console.error("Error al obtener renters:", err))
@@ -88,7 +88,7 @@ const UserBrowser = () => {
       const datosPaso1 = localStorage.getItem("registroDriverPaso1");
       const token = localStorage.getItem("token");
       if (!token) {
-        setError("No se encontró el token de autenticación.");
+        console.error("No se encontró el token de autenticación.");
         setLoading(false);
         return;
       }
@@ -109,7 +109,7 @@ const UserBrowser = () => {
         reversoUrl,
       } = JSON.parse(datosPaso1);
   
-      const res = await fetch("http://localhost:3001/api/registro-driver", {
+      const res = await fetch("https://redibo-back-wtt.vercel.app/api/registro-driver", {
         method: "POST",
         headers: { "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,},
