@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { MdiPencil } from '@/app/components/Icons/Pencil';
+import MdiPencil from '@/app/components/Icons/Pencil';
 
 import { updateUserField } from '@/libs/userService';
 import UserIcon from '@/app/components/Icons/User';
