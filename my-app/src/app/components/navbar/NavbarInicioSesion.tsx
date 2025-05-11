@@ -1,12 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
-
 import { useRouter } from 'next/navigation';
-
 import { useUser } from '@/hooks/useUser';
-
 import Link from 'next/link';
-export default function NavbarInicioSesion({ onBecomeHost }: { onBecomeHost: () => void }) {
+
+
+export default function NavbarInicioSesion({ onBecomeHost, onBecomeDriver }: { onBecomeHost: () => void; onBecomeDriver: () => void; }) {
   const [activeBtn, setActiveBtn] = useState(0);
   //Token nombre de usuario
   const user = useUser();
@@ -88,15 +87,14 @@ export default function NavbarInicioSesion({ onBecomeHost }: { onBecomeHost: () 
                 fillRule="evenodd"
                 d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
                 clipRule="evenodd"
-                />
-                </svg>
+              />
+            </svg>
               )}
-            </div>
-            
-            {/* Componente menú */}
-            {isMenuOpen && (
-              <ProfileMenu onLogout={handleLogout} router={router} onBecomeHost={onBecomeHost} />
-            )}
+          </div>
+
+          {isMenuOpen && (
+            <ProfileMenu onLogout={handleLogout} router={router} onBecomeHost={onBecomeHost} onBecomeDriver={onBecomeDriver} />
+          )}
         </div>
       </nav>
     </div>
@@ -106,11 +104,14 @@ export default function NavbarInicioSesion({ onBecomeHost }: { onBecomeHost: () 
 function ProfileMenu({
   onLogout,
   router,
-  onBecomeHost
+  onBecomeHost,
+  onBecomeDriver
 }: {
   onLogout: () => void;
   router: ReturnType<typeof useRouter>;
   onBecomeHost: () => void;
+
+  onBecomeDriver: () => void,
 }) {
   return (
     <div className="absolute right-0 top-full mt-2 w-40 bg-[var(--blanco)] border rounded-lg shadow-lg z-[9999] font-[var(--tamaña-bold)]">
@@ -126,6 +127,13 @@ function ProfileMenu({
         onClick={onBecomeHost}
       >
         <h2 className="hover:text-[var(--blanco)]">Quiero ser Host</h2>
+      </button>
+
+      <button 
+        className="block w-full text-left px-4 py-2 text-[var(--naranja)] hover:bg-[var(--naranja-46)]"
+        onClick={() => router.push('/home/Driver')}
+      >
+        <h2 className="hover:text-[var(--blanco)]">Quiero ser Conductor</h2>
       </button>
 
       <button 

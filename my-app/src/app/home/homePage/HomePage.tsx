@@ -12,9 +12,10 @@ import RegisterModal from '@/app/components/auth/authregistro/RegisterModal';
 import VehicleDataModal from '@/app/components/auth/authRegistroHost/VehicleDataModal';
 import PaymentModal from '@/app/components/auth/authRegistroHost/PaymentModal';
 import CompleteProfileModal from '@/app/components/auth/authRegistroHost/CompleteProfileModal';
+import SuccessModal from '@/app/home/Driver/SuccesModal/successModal';
 
 export default function MainHome() {
-  const [activeModal, setActiveModal] = useState<'login' | 'register' | 'vehicleData' | 'paymentData' | 'completeProfile' | null>(null);
+  const [activeModal, setActiveModal] = useState<'login' | 'register' | 'vehicleData' | 'paymentData' | 'completeProfile' | 'succesModal' | null>(null);
 
   const [vehicleData, setVehicleData] = useState<{
     placa: string;
@@ -76,15 +77,19 @@ export default function MainHome() {
 };
 
 
+
   const handleRegistrationComplete = () => {
     setActiveModal(null);
     displayToast('¡Tu registro como host fue completado exitosamente!');
   };
+  
 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--background-principal)]">
       <header className="border-t border-b border-[rgba(215, 30, 30, 0.1)] shadow-[0_2px_6px_rgba(0,0,0,0.1)]">
-        <NavbarInicioSesion onBecomeHost={() => setActiveModal('vehicleData')} />
+        <NavbarInicioSesion onBecomeHost={() => setActiveModal('vehicleData')} onBecomeDriver={function (): void {
+          throw new Error('Function not implemented.');
+        } } />
       </header>
 
       <header className="/* headerFilters */">
@@ -154,6 +159,8 @@ export default function MainHome() {
           {toastMessage}
         </div>
       )}
+
+      
     </div>
   );
 }

@@ -37,6 +37,8 @@ export default function TerminosLogin() {
       <header>
           <NavbarInicioSesion onBecomeHost={function (): void {
           throw new Error('Function not implemented.');
+        } } onBecomeDriver={function (): void {
+          throw new Error('Function not implemented.');
         } }/>
       </header>
 
