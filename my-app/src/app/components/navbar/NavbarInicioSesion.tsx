@@ -105,7 +105,7 @@ function ProfileMenu({
   onLogout,
   router,
   onBecomeHost,
-  onBecomeDriver
+  /* onBecomeDriver */
 }: {
   onLogout: () => void;
   router: ReturnType<typeof useRouter>;

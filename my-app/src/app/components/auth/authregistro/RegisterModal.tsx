@@ -2,8 +2,6 @@ import styles from "./RegisterModal.module.css";
 import { useState } from "react";
 import CompleteProfileModal from "./CompleteProfileModal"; // ajusta si cambia el path
 import { useEffect } from "react";
-/* import { useSearchParams } from "next/navigation"; */ // o useLocation si usas react-router
-/* import { backendip } from "@/libs/authServices"; */
 
 export default function RegisterModal({
   onClose,
@@ -19,7 +17,8 @@ export default function RegisterModal({
       localStorage.setItem("welcomeMessage", "¡Bienvenido a Redibo!");
       // Pequeño delay para que el spinner alcance a mostrarse
       setTimeout(() => {
-        window.location.href = "https://redibo-back-wtt.vercel.app/api/auth/google";
+        window.location.href =
+          "https://redibo-back-wtt.vercel.app/api/auth/google";
       }, 300); // 300ms = 0.3 segundos
     } catch (error) {
       console.error("Error en registro con Google", error);
@@ -121,6 +120,21 @@ export default function RegisterModal({
 
     const params = new URLSearchParams(window.location.search);
     const googleError = params.get("error");
+
+    const token = params.get("token");
+    const email = params.get("email");
+
+    if (token && email) {
+      localStorage.setItem("token", token); // ✅ Aquí lo guardas
+      localStorage.setItem("google_email", email); // ✅ Ya hacías esto
+      console.log("✅ Token y email guardados");
+
+      // Limpiar la URL si deseas
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete("token");
+      cleanUrl.searchParams.delete("email");
+      window.history.replaceState({}, "", cleanUrl.toString());
+    }
 
     if (googleComplete && shouldOpen === "true") {
       setShowCompleteProfile(true);
@@ -288,7 +302,7 @@ export default function RegisterModal({
     } else if (age > 85) {
       setBirthError(true);
       setBirthMessage("La edad máxima permitida es de 85 años");
-      hasErrors = true;  
+      hasErrors = true;
     } else {
       setBirthError(false);
       setBirthMessage("");
@@ -365,12 +379,15 @@ export default function RegisterModal({
         telefono: phone ? parseInt(cleanPhone) : null,
       };
 
-      const res = await fetch("https://redibo-back-wtt.vercel.app/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(user),
-      });
+      const res = await fetch(
+        "https://redibo-back-wtt.vercel.app/api/register",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(user),
+        }
+      );
 
       if (res.ok) {
         /* alert("¡Usuario registrado con éxito!"); */
