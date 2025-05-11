@@ -151,6 +151,7 @@ export default function CompleteProfileModal({
 
     try {
       const token = localStorage.getItem("token");
+      console.log("Token a enviar (CompleteProfileModal):", token);
       const res = await fetch(
         "https://redibo-back-wtt.vercel.app/api/update-profile",
         {
