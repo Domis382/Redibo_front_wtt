@@ -150,12 +150,14 @@ export default function CompleteProfileModal({
     setError("");
 
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(
         "https://redibo-back-wtt.vercel.app/api/update-profile",
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // ✅ AQUÍ ESTÁ LA CLAVE
           },
           credentials: "include",
           body: JSON.stringify({
