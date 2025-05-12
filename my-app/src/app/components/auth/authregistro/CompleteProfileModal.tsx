@@ -24,6 +24,9 @@ export default function CompleteProfileModal({
   const [phoneMessage, setPhoneMessage] = useState("");
   const [error, setError] = useState("");
   const userEmail = localStorage.getItem("google_email");
+  const [termsError, setTermsError] = useState(false);  // Estado para manejar el error de aceptación
+
+  let hasErrors = false;
 
   useEffect(() => {
     if (!birthDay || !birthMonth || !birthYear) {
@@ -61,7 +64,7 @@ export default function CompleteProfileModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    const form = e.target as HTMLFormElement;
     if (!name.trim()) {
       setError("El nombre es obligatorio");
       return;
@@ -76,6 +79,18 @@ export default function CompleteProfileModal({
       setError("Completa la fecha de nacimiento");
       return;
     }
+
+    //validacion de terminos y condiciones
+  const terms = (form.elements.namedItem("terms") as HTMLInputElement)
+  .checked;
+
+if (!terms) {
+  setTermsError(true);
+  hasErrors = true;
+} else {
+  setTermsError(false);
+}
+if (hasErrors) return; // Si hay al menos un error, no continúa
 
     const birthDate = new Date(
       Number(birthYear),
@@ -192,13 +207,6 @@ export default function CompleteProfileModal({
       console.error("Error al guardar datos de perfil", err);
       setError("No se pudo guardar los datos. Intenta nuevamente.");
     }
-    /*  onComplete({
-      name: name.trim(),
-      birthDate: birthDate.toISOString(),
-    });
-
-    if (onSuccess) onSuccess();
-    onClose(); */
   };
 
   return (
@@ -330,13 +338,25 @@ export default function CompleteProfileModal({
                 value={phoneValue}
                 onChange={(e) => {
                   const newValue = e.target.value;
-
+                  
+                  // Validar que solo se permitan números
                   if (!/^\d*$/.test(newValue)) {
                     setPhoneError(true);
                     setPhoneMessage("Solo se permiten números");
                     return;
                   }
 
+                  // Validar que el número tenga exactamente 8 dígitos
+                  // Validar que el número tenga exactamente 8 dígitos
+                  if (newValue.length > 8) {
+                    setPhoneError(true);
+                    setPhoneMessage(
+                      "El número debe tener exactamente 8 dígitos"
+                    );
+                    return;
+                  }
+
+                  // Actualizar el estado solo si es válido
                   setPhoneValue(newValue);
                   localStorage.setItem("register_phone", newValue);
                   setPhoneError(false);
@@ -373,6 +393,33 @@ export default function CompleteProfileModal({
               {error}
             </p>
           )}
+
+           {/* campo terminos y condiciones */}
+              <div className={styles.terms}>
+                <input type="checkbox" id="terms" name="terms" />
+                <label htmlFor="terms" className={styles.termsLabel}>
+                  <span className={styles.termsText}>
+                    He leído y acepto los{" "}
+                    <a href="/home/terminos" className={styles.termsLink}>
+                      Términos y condiciones
+                    </a>{" "}
+                    de la página
+                  </span>
+                </label>
+              </div>
+
+              {termsError && (
+                <p
+                  style={{
+                    color: "#E30000",
+                    fontSize: "0.75rem",
+                    marginTop: "0.2rem",
+                  }}
+                >
+                  Debes aceptar los términos y condiciones para continuar
+                </p>
+              )}
+
 
           <button type="submit" className={styles.button}>
             ¡Registrarme!
