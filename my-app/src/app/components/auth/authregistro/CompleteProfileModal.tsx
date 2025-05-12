@@ -24,7 +24,7 @@ export default function CompleteProfileModal({
   const [phoneMessage, setPhoneMessage] = useState("");
   const [error, setError] = useState("");
   const userEmail = localStorage.getItem("google_email");
-  const [termsError, setTermsError] = useState(false);  // Estado para manejar el error de aceptación
+  const [termsError, setTermsError] = useState(false); // Estado para manejar el error de aceptación
 
   let hasErrors = false;
 
@@ -81,16 +81,16 @@ export default function CompleteProfileModal({
     }
 
     //validacion de terminos y condiciones
-  const terms = (form.elements.namedItem("terms") as HTMLInputElement)
-  .checked;
+    const terms = (form.elements.namedItem("terms") as HTMLInputElement)
+      .checked;
 
-if (!terms) {
-  setTermsError(true);
-  hasErrors = true;
-} else {
-  setTermsError(false);
-}
-if (hasErrors) return; // Si hay al menos un error, no continúa
+    if (!terms) {
+      setTermsError(true);
+      hasErrors = true;
+    } else {
+      setTermsError(false);
+    }
+    if (hasErrors) return; // Si hay al menos un error, no continúa
 
     const birthDate = new Date(
       Number(birthYear),
@@ -338,7 +338,7 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
                 value={phoneValue}
                 onChange={(e) => {
                   const newValue = e.target.value;
-                  
+
                   // Validar que solo se permitan números
                   if (!/^\d*$/.test(newValue)) {
                     setPhoneError(true);
@@ -394,32 +394,31 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
             </p>
           )}
 
-           {/* campo terminos y condiciones */}
-              <div className={styles.terms}>
-                <input type="checkbox" id="terms" name="terms" />
-                <label htmlFor="terms" className={styles.termsLabel}>
-                  <span className={styles.termsText}>
-                    He leído y acepto los{" "}
-                    <a href="/home/terminos" className={styles.termsLink}>
-                      Términos y condiciones
-                    </a>{" "}
-                    de la página
-                  </span>
-                </label>
-              </div>
+          {/* campo terminos y condiciones */}
+          <div className={styles.terms}>
+            <input type="checkbox" id="terms" name="terms" />
+            <label htmlFor="terms" className={styles.termsLabel}>
+              <span className={styles.termsText}>
+                He leído y acepto los{" "}
+                <a href="/home/terminos" className={styles.termsLink}>
+                  Términos y condiciones
+                </a>{" "}
+                de la página
+              </span>
+            </label>
+          </div>
 
-              {termsError && (
-                <p
-                  style={{
-                    color: "#E30000",
-                    fontSize: "0.75rem",
-                    marginTop: "0.2rem",
-                  }}
-                >
-                  Debes aceptar los términos y condiciones para continuar
-                </p>
-              )}
-
+          {termsError && (
+            <p
+              style={{
+                color: "#E30000",
+                fontSize: "0.75rem",
+                marginTop: "0.2rem",
+              }}
+            >
+              Debes aceptar los términos y condiciones para continuar
+            </p>
+          )}
 
           <button type="submit" className={styles.button}>
             ¡Registrarme!

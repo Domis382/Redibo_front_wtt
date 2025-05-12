@@ -113,15 +113,15 @@ export default function RegisterModal({
       return;
     }
 
+    const params = new URLSearchParams(window.location.search);
+
     const googleComplete = window.location.search.includes(
       "googleComplete=true"
     );
     const shouldOpen = localStorage.getItem("openCompleteProfileModal");
 
-    const params = new URLSearchParams(window.location.search);
     const googleError = params.get("error");
-
-    const autoLogin = urlParams.get("googleAutoLogin");
+    const autoLogin = params.get("googleAutoLogin");
     const token = params.get("token");
     const email = params.get("email");
 
