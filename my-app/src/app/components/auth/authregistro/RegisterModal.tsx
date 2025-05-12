@@ -94,76 +94,72 @@ export default function RegisterModal({
   ];
 
   useEffect(() => {
-    const message = localStorage.getItem("welcomeMessage");
-    if (message) {
-      setWelcome(message);
-      setShowWelcome(true);
-      localStorage.removeItem("welcomeMessage");
+  const params = new URLSearchParams(window.location.search);
+  const autoLogin = params.get("googleAutoLogin");
+  const token = params.get("token");
+  const email = params.get("email");
 
-      // Desaparecer después de 3 segundos
-      setTimeout(() => {
-        setShowWelcome(false);
-      }, 3000);
-    }
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("error") === "cuentaExistente") {
-      alert(
-        "Este correo ya fue registrado de forma manual. Inicia sesión con tu contraseña."
-      );
-      return;
-    }
+  // ✅ CASO 1: login automático → guardar token y redirigir
+  if (autoLogin && token && email) {
+    localStorage.setItem("token", token);
+    localStorage.setItem("google_email", email);
+    console.log("✅ Login automático con Google exitoso");
 
-    const params = new URLSearchParams(window.location.search);
+    // Limpiar URL
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.delete("googleAutoLogin");
+    cleanUrl.searchParams.delete("token");
+    cleanUrl.searchParams.delete("email");
+    window.history.replaceState({}, "", cleanUrl.toString());
 
-    const googleComplete = window.location.search.includes(
-      "googleComplete=true"
-    );
-    const shouldOpen = localStorage.getItem("openCompleteProfileModal");
+    window.location.href = "/home/homePage";
+    return;
+  }
 
-    const googleError = params.get("error");
-    const autoLogin = params.get("googleAutoLogin");
-    const token = params.get("token");
-    const email = params.get("email");
+  // ✅ CASO 2: token manual → solo guardar
+  if (token && email) {
+    localStorage.setItem("token", token);
+    localStorage.setItem("google_email", email);
+    console.log("✅ Token y email guardados");
 
-    if (autoLogin && token && email) {
-      localStorage.setItem("token", token);
-      localStorage.setItem("google_email", email);
-      console.log("✅ Login automático con Google exitoso");
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.delete("token");
+    cleanUrl.searchParams.delete("email");
+    window.history.replaceState({}, "", cleanUrl.toString());
+  }
 
-      // Redirigir directamente al home
-      window.location.href = "/home/homePage";
-      return;
-    }
+  // ✅ CASO 3: modal de perfil
+  const googleComplete = params.get("googleComplete");
+  const shouldOpen = localStorage.getItem("openCompleteProfileModal");
+  if (googleComplete === "true" && shouldOpen === "true") {
+    setShowCompleteProfile(true);
+    localStorage.removeItem("openCompleteProfileModal");
+  }
 
-    if (token && email) {
-      localStorage.setItem("token", token); // ✅ Aquí lo guardas
-      localStorage.setItem("google_email", email); // ✅ Ya hacías esto
-      console.log("✅ Token y email guardados");
+  // ✅ CASO 4: error de cuenta ya registrada
+  const googleError = params.get("error");
+  if (googleError === "alreadyExists" || googleError === "cuentaExistente") {
+    setError("Esta cuenta ya está registrada. Por favor, inicia sesión.");
+    onClose();
+    setTimeout(() => onLoginClick(), 100);
+  }
 
-      // Limpiar la URL si deseas
-      const cleanUrl = new URL(window.location.href);
-      cleanUrl.searchParams.delete("token");
-      cleanUrl.searchParams.delete("email");
-      window.history.replaceState({}, "", cleanUrl.toString());
-    }
+  // ✅ Mensaje de bienvenida
+  const message = localStorage.getItem("welcomeMessage");
+  if (message) {
+    setWelcome(message);
+    setShowWelcome(true);
+    localStorage.removeItem("welcomeMessage");
+    setTimeout(() => setShowWelcome(false), 3000);
+  }
 
-    if (googleComplete && shouldOpen === "true") {
-      setShowCompleteProfile(true);
-      localStorage.removeItem("openCompleteProfileModal");
-    }
+  // ✅ Limpieza general
+  const url = new URL(window.location.href);
+  url.searchParams.delete("googleComplete");
+  url.searchParams.delete("error");
+  window.history.replaceState({}, document.title, url.toString());
+}, []);
 
-    if (googleError === "alreadyExists") {
-      // Mostrar el modal manual y algún mensaje
-      setError("Esta cuenta ya está registrada. Por favor, inicia sesión.");
-      onClose(); // Cierra modal Google si estuviera abierto
-      setTimeout(() => onLoginClick(), 100); // Abre el login
-    }
-
-    const url = new URL(window.location.href);
-    url.searchParams.delete("googleComplete");
-    url.searchParams.delete("error");
-    window.history.replaceState({}, document.title, url.toString());
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
