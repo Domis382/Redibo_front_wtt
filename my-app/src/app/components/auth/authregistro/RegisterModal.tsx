@@ -121,8 +121,19 @@ export default function RegisterModal({
     const params = new URLSearchParams(window.location.search);
     const googleError = params.get("error");
 
+    const autoLogin = urlParams.get("googleAutoLogin");
     const token = params.get("token");
     const email = params.get("email");
+
+    if (autoLogin && token && email) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("google_email", email);
+      console.log("✅ Login automático con Google exitoso");
+
+      // Redirigir directamente al home
+      window.location.href = "/home/homePage";
+      return;
+    }
 
     if (token && email) {
       localStorage.setItem("token", token); // ✅ Aquí lo guardas
