@@ -13,7 +13,7 @@ export default function RegisterModal({
   const handleGoogleRegister = () => {
     try {
       setLoading(true);
-      /* localStorage.setItem("openCompleteProfileModal", "true"); */
+      localStorage.setItem("openCompleteProfileModal", "true");
       localStorage.setItem("welcomeMessage", "¡Bienvenido a Redibo!");
       // Pequeño delay para que el spinner alcance a mostrarse
       setTimeout(() => {
@@ -133,7 +133,7 @@ export default function RegisterModal({
   const shouldOpen = localStorage.getItem("openCompleteProfileModal");
   if (googleComplete === "true" && shouldOpen === "true") {
     setShowCompleteProfile(true);
-    /* localStorage.removeItem("openCompleteProfileModal"); */
+    localStorage.removeItem("openCompleteProfileModal");
   }
 
   // ✅ CASO 4: error de cuenta ya registrada
