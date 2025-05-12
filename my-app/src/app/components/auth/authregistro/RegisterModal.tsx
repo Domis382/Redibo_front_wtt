@@ -133,7 +133,7 @@ export default function RegisterModal({
   const shouldOpen = localStorage.getItem("openCompleteProfileModal");
   if (googleComplete === "true" && shouldOpen === "true") {
     setShowCompleteProfile(true);
-    localStorage.removeItem("openCompleteProfileModal");
+    /* localStorage.removeItem("openCompleteProfileModal"); */
   }
 
   // ✅ CASO 4: error de cuenta ya registrada
