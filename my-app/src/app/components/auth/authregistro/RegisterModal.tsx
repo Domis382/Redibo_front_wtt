@@ -13,7 +13,7 @@ export default function RegisterModal({
   const handleGoogleRegister = () => {
     try {
       setLoading(true);
-      localStorage.setItem("openCompleteProfileModal", "true");
+      /* localStorage.setItem("openCompleteProfileModal", "true"); */
       localStorage.setItem("welcomeMessage", "¡Bienvenido a Redibo!");
       // Pequeño delay para que el spinner alcance a mostrarse
       setTimeout(() => {
