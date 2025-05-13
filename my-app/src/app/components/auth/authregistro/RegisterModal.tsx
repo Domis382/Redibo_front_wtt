@@ -2,6 +2,7 @@ import styles from "./RegisterModal.module.css";
 import { useState } from "react";
 import CompleteProfileModal from "./CompleteProfileModal"; // ajusta si cambia el path
 import { useEffect } from "react";
+import { useRouter } from 'next/navigation';
 
 export default function RegisterModal({
   onClose,
@@ -71,6 +72,7 @@ export default function RegisterModal({
   const [phoneError, setPhoneError] = useState(false);
   const [phoneMessage, setPhoneMessage] = useState("");
   const [termsError, setTermsError] = useState(false);
+  const router = useRouter();
 
   /*   const searchParams =
     typeof window !== "undefined"
@@ -109,10 +111,10 @@ export default function RegisterModal({
 
   // ✅ CASO 1: login automático → guardar token y redirigir
   if (autoLogin && token && email) {
+    console.log("🔑 Auto login detectado");
     localStorage.setItem("token", token);
     localStorage.setItem("google_email", email);
-    console.log("🔑 Auto login detectado");
-
+    
     // Limpiar URL
     const cleanUrl = new URL(window.location.href);
     cleanUrl.searchParams.delete("googleAutoLogin");
@@ -120,7 +122,7 @@ export default function RegisterModal({
     cleanUrl.searchParams.delete("email");
     window.history.replaceState({}, "", cleanUrl.toString());
 
-    window.location.href = "/home/homePage";
+    router.push("/home/homePage");
     return;
   }
 
