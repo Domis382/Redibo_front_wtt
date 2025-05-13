@@ -189,6 +189,9 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
       if (onSuccess) {
         onSuccess(); // ✅ activa el modal de éxito
       }
+      
+
+
     } catch (err) {
       console.error("Error al guardar datos de perfil", err);
       setError("No se pudo guardar los datos. Intenta nuevamente.");
@@ -377,8 +380,8 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
               </p>
             )}
           </div>
- {/* campo terminos y condiciones */}
- <div className={styles.terms}>
+          {/* campo terminos y condiciones */}
+            <div className={styles.terms}>
                 <input type="checkbox" id="terms" name="terms" />
                 <label htmlFor="terms" className={styles.termsLabel}>
                   <span className={styles.termsText}>
