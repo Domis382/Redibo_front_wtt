@@ -4,6 +4,10 @@ import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+const getDaysInMonth = (month: number, year: number) => {
+  return new Date(year, month, 0).getDate();
+};
+
 export default function CompleteProfileModal({
   onComplete,
   onClose,
@@ -25,6 +29,10 @@ export default function CompleteProfileModal({
   const [error, setError] = useState("");
   const userEmail = localStorage.getItem("google_email");
   const [termsError, setTermsError] = useState(false);  // Estado para manejar el error de aceptación
+
+  const daysInMonth = birthMonth && birthYear
+  ? getDaysInMonth(Number(birthMonth), Number(birthYear))
+  : 31;
 
   //manejo de errores
 
@@ -63,6 +71,16 @@ export default function CompleteProfileModal({
       setBirthError("");
     }
   }, [birthDay, birthMonth, birthYear]); // 🔁 DEPENDENCIAS
+
+  useEffect(() => {
+    if (birthDay && birthMonth && birthYear) {
+      const validDays = getDaysInMonth(Number(birthMonth), Number(birthYear));
+      if (Number(birthDay) > validDays) {
+        setBirthDay("");
+      }
+    }
+  }, [birthMonth, birthYear]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -196,6 +214,8 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
       console.error("Error al guardar datos de perfil", err);
       setError("No se pudo guardar los datos. Intenta nuevamente.");
     }
+
+
     /*  onComplete({
       name: name.trim(),
       birthDate: birthDate.toISOString(),
@@ -275,7 +295,7 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
                 className={styles.select}
               >
                 <option value="">DD</option>
-                {[...Array(31)].map((_, i) => (
+                {[...Array(daysInMonth)].map((_, i) => (
                   <option key={i + 1} value={i + 1}>
                     {i + 1}
                   </option>
