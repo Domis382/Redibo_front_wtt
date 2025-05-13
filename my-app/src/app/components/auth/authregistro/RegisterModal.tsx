@@ -13,15 +13,18 @@ export default function RegisterModal({
   const handleGoogleRegister = () => {
     try {
       setLoading(true);
+      console.log("🚀 Iniciando registro con Google");
+
       localStorage.setItem("openCompleteProfileModal", "true");
       localStorage.setItem("welcomeMessage", "¡Bienvenido a Redibo!");
       // Pequeño delay para que el spinner alcance a mostrarse
       setTimeout(() => {
+        console.log("➡️ Redirigiendo a Google OAuth");
         window.location.href =
           "https://redibo-back-wtt.vercel.app/api/auth/google";
       }, 300); // 300ms = 0.3 segundos
     } catch (error) {
-      console.error("Error en registro con Google", error);
+      console.error("❌ Error en registro con Google", error);
       setLoading(false);
     }
   };
@@ -95,15 +98,20 @@ export default function RegisterModal({
 
   useEffect(() => {
   const params = new URLSearchParams(window.location.search);
+
   const autoLogin = params.get("googleAutoLogin");
+  const googleComplete = params.get("googleComplete");
   const token = params.get("token");
   const email = params.get("email");
+  const shouldOpen = localStorage.getItem("openCompleteProfileModal");
+  
+  console.log("🌐 URL Params:", { autoLogin, googleComplete, token, email, shouldOpen });
 
   // ✅ CASO 1: login automático → guardar token y redirigir
   if (autoLogin && token && email) {
     localStorage.setItem("token", token);
     localStorage.setItem("google_email", email);
-    console.log("✅ Login automático con Google exitoso");
+    console.log("🔑 Auto login detectado");
 
     // Limpiar URL
     const cleanUrl = new URL(window.location.href);
@@ -129,16 +137,17 @@ export default function RegisterModal({
   }
 
   // ✅ CASO 3: modal de perfil
-  const googleComplete = params.get("googleComplete");
-  const shouldOpen = localStorage.getItem("openCompleteProfileModal");
+  
   if (googleComplete === "true" && shouldOpen === "true") {
     setShowCompleteProfile(true);
     localStorage.removeItem("openCompleteProfileModal");
+    console.log("🧩 Mostrar modal CompleteProfileModal");
   }
 
   // ✅ CASO 4: error de cuenta ya registrada
   const googleError = params.get("error");
   if (googleError === "alreadyExists" || googleError === "cuentaExistente") {
+    console.log("🧩 Cuenta ya existente");
     setError("Esta cuenta ya está registrada. Por favor, inicia sesión.");
     onClose();
     setTimeout(() => onLoginClick(), 100);
