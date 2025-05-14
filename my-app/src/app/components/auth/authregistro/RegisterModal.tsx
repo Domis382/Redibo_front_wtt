@@ -2,7 +2,7 @@ import styles from "./RegisterModal.module.css";
 import { useState } from "react";
 import CompleteProfileModal from "./CompleteProfileModal"; // ajusta si cambia el path
 import { useEffect } from "react";
-import { useRouter } from 'next/navigation';
+/* import { useRouter } from 'next/navigation'; */
 
 export default function RegisterModal({
   onClose,
@@ -72,7 +72,7 @@ export default function RegisterModal({
   const [phoneError, setPhoneError] = useState(false);
   const [phoneMessage, setPhoneMessage] = useState("");
   const [termsError, setTermsError] = useState(false);
-  const router = useRouter();
+  /* const router = useRouter(); */
 
   /*   const searchParams =
     typeof window !== "undefined"
@@ -122,7 +122,8 @@ export default function RegisterModal({
     cleanUrl.searchParams.delete("email");
     window.history.replaceState({}, "", cleanUrl.toString());
 
-    router.push("/home/homePage");
+    window.location.href = "/home/homePage";
+/*     router.push("/home/homePage"); */
     return;
   }
 
