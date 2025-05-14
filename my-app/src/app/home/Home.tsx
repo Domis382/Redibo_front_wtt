@@ -59,7 +59,7 @@ export default function HomePage() {
 
       setActiveModal(null); // asegúrate de que no quede ningún modal activo
       window.location.href = "/home/homePage";
-      return;
+      
     }
 
     // Mostrar modal solo si viene de registro con Google
