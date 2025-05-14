@@ -110,7 +110,7 @@ export default function RegisterModal({
   console.log("🌐 URL Params:", { autoLogin, googleComplete, token, email, shouldOpen });
 
   // ✅ CASO 1: login automático → guardar token y redirigir
-  if (autoLogin && token && email) {
+  /* if (autoLogin && token && email) {
     console.log("🔑 Auto login detectado");
     localStorage.setItem("token", token);
     localStorage.setItem("google_email", email);
@@ -122,10 +122,10 @@ export default function RegisterModal({
     cleanUrl.searchParams.delete("email");
     window.history.replaceState({}, "", cleanUrl.toString());
 
-    /* window.location.href = "/home/homePage"; */
-/*     router.push("/home/homePage"); */
+    window.location.href = "/home/homePage";
+    router.push("/home/homePage");
     return;
-  }
+  } */
 
   // ✅ CASO 2: token manual → solo guardar
   if (token && email) {

@@ -13,6 +13,7 @@ import RegisterModal from "../components/auth/authregistro/RegisterModal";
 
 export default function HomePage() {
   const searchParams = useSearchParams();
+  const [hasRedirected, setHasRedirected] = useState(false); // 👈 Evita doble redirect
 
   const [activeModal, setActiveModal] = useState<"login" | "register" | null>(
     null
@@ -46,27 +47,46 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    const complete = searchParams?.get("googleComplete");
-    const autoLogin = searchParams?.get("googleAutoLogin");
+    const autoLogin = searchParams.get("googleAutoLogin");
+    const token = searchParams.get("token");
+    const email = searchParams.get("email");
+
+    if (autoLogin === "true" && token && email && !hasRedirected) {
+      console.log("🌐 Detectado login automático en /home. Redirigiendo...");
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("google_email", email);
+
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete("googleAutoLogin");
+      cleanUrl.searchParams.delete("token");
+      cleanUrl.searchParams.delete("email");
+      window.history.replaceState({}, "", cleanUrl.toString());
+
+      setHasRedirected(true);
+      window.location.href = "/home/homePage"; // ✅ solo desde aquí
+    }
+
     // Si viene con login automático NO mostrar ningún modal
-    if (autoLogin === "true") {
+    /* if (autoLogin === "true") {
       // Limpiar la URL primero (opcional pero recomendado)
-      /* const url = new URL(window.location.href);
+      const url = new URL(window.location.href);
       url.searchParams.delete("googleAutoLogin");
       url.searchParams.delete("token");
       url.searchParams.delete("email");
-      window.history.replaceState({}, "", url.toString()); */
+      window.history.replaceState({}, "", url.toString());
 
       setActiveModal(null); // asegúrate de que no quede ningún modal activo
       window.location.href = "/home/homePage";
       
-    }
+    } */
 
     // Mostrar modal solo si viene de registro con Google
-    if (complete === "true") {
+    /* if (complete === "true") {
       setActiveModal("register");
-    }
-  }, [searchParams]);
+    } */
+    
+  }, [searchParams, hasRedirected]);
 
   return (
     <div className={styles.container}>
