@@ -48,14 +48,24 @@ export default function HomePage() {
   useEffect(() => {
     const complete = searchParams?.get("googleComplete");
     const autoLogin = searchParams?.get("googleAutoLogin");
+    // Si viene con login automático NO mostrar ningún modal
+    if (autoLogin === "true") {
+      // Limpiar la URL primero (opcional pero recomendado)
+      const url = new URL(window.location.href);
+      url.searchParams.delete("googleAutoLogin");
+      url.searchParams.delete("token");
+      url.searchParams.delete("email");
+      window.history.replaceState({}, "", url.toString());
+
+      setActiveModal(null); // asegúrate de que no quede ningún modal activo
+      window.location.href = "/home/homePage";
+      return;
+    }
+
     // Mostrar modal solo si viene de registro con Google
-  if (complete === "true") {
-    setActiveModal("register");
-  }
-  // Si viene con login automático NO mostrar ningún modal
-  if (autoLogin === "true") {
-    setActiveModal(null); // asegúrate de que no quede ningún modal activo
-  }
+    if (complete === "true") {
+      setActiveModal("register");
+    }
   }, [searchParams]);
 
   return (
