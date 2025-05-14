@@ -122,7 +122,7 @@ export default function RegisterModal({
     cleanUrl.searchParams.delete("email");
     window.history.replaceState({}, "", cleanUrl.toString());
 
-    window.location.href = "/home/homePage";
+    /* window.location.href = "/home/homePage"; */
 /*     router.push("/home/homePage"); */
     return;
   }
