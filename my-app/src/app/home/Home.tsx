@@ -50,6 +50,8 @@ export default function HomePage() {
     const autoLogin = searchParams.get("googleAutoLogin");
     const token = searchParams.get("token");
     const email = searchParams.get("email");
+    const googleComplete = searchParams.get("googleComplete");
+    const shouldOpen = localStorage.getItem("openCompleteProfileModal");
 
     if (autoLogin === "true" && token && email && !hasRedirected) {
       console.log("🌐 Detectado login automático en /home. Redirigiendo...");
@@ -65,6 +67,12 @@ export default function HomePage() {
 
       setHasRedirected(true);
       window.location.href = "/home/homePage"; // ✅ solo desde aquí
+    }
+
+    if (googleComplete === "true" && shouldOpen === "true") {
+      console.log("🧩 Mostrar modal de perfil desde /home");
+      localStorage.removeItem("openCompleteProfileModal");
+      setActiveModal("register"); // 👈 Esto abrirá el `RegisterModal`
     }
 
     // Si viene con login automático NO mostrar ningún modal
@@ -85,7 +93,6 @@ export default function HomePage() {
     /* if (complete === "true") {
       setActiveModal("register");
     } */
-    
   }, [searchParams, hasRedirected]);
 
   return (
