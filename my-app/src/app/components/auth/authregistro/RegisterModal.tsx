@@ -110,7 +110,7 @@ export default function RegisterModal({
   console.log("🌐 URL Params:", { autoLogin, googleComplete, token, email, shouldOpen });
 
   // ✅ CASO 1: login automático → guardar token y redirigir
-  if (autoLogin === "true" && token && email) {
+  if (autoLogin && token && email) {
     console.log("🔑 Auto login detectado");
     localStorage.setItem("token", token);
     localStorage.setItem("google_email", email);
