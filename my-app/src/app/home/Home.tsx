@@ -51,11 +51,11 @@ export default function HomePage() {
     // Si viene con login automático NO mostrar ningún modal
     if (autoLogin === "true") {
       // Limpiar la URL primero (opcional pero recomendado)
-      const url = new URL(window.location.href);
+      /* const url = new URL(window.location.href);
       url.searchParams.delete("googleAutoLogin");
       url.searchParams.delete("token");
       url.searchParams.delete("email");
-      window.history.replaceState({}, "", url.toString());
+      window.history.replaceState({}, "", url.toString()); */
 
       setActiveModal(null); // asegúrate de que no quede ningún modal activo
       window.location.href = "/home/homePage";
