@@ -47,7 +47,7 @@ export default function UserPerfilDriver() {
           return;
         }
 
-        const res = await fetch("http://localhost:3001/api/profile", {
+        const res = await fetch("https://redibo-back-wtt.vercel.app/api/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -77,8 +77,8 @@ export default function UserPerfilDriver() {
 
   useEffect(() => {
     if (user?.foto_perfil) {
-      setImagePreviewUrl(`http://localhost:3001${user.foto_perfil}`);
-      console.log('✅ Foto cargada:', `http://localhost:3001${user.foto_perfil}`);
+      setImagePreviewUrl(`https://redibo-back-wtt.vercel.app${user.foto_perfil}`);
+      console.log('✅ Foto cargada:', `https://redibo-back-wtt.vercel.app${user.foto_perfil}`);
     }
   }, [user]);
   if (!user) return null;

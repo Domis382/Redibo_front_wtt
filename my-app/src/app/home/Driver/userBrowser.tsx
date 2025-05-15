@@ -188,7 +188,7 @@ const UserBrowser = () => {
     const profileImageUrl =
       fallback || !user.foto_perfil
         ? "/user-default.svg"
-        : `http://localhost:3001${
+        : `https://redibo-back-wtt.vercel.app${
             user.foto_perfil.startsWith("/") ? "" : "/"
           }${user.foto_perfil}`;
 
