@@ -193,13 +193,6 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
       console.error("Error al guardar datos de perfil", err);
       setError("No se pudo guardar los datos. Intenta nuevamente.");
     }
-    /*  onComplete({
-      name: name.trim(),
-      birthDate: birthDate.toISOString(),
-    });
-
-    if (onSuccess) onSuccess();
-    onClose(); */
   };
 
   return (
