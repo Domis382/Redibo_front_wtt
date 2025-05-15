@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import { MdiPencil } from '@/app/components/Icons/Pencil';
 import { updateUserField } from '@/libs/userService';
@@ -19,7 +20,8 @@ export default function NombreEditable({ initialValue, campoEnEdicion, setCampoE
   const [errorMensaje, setErrorMensaje] = useState('');
   const [infoExtra, setInfoExtra] = useState('');
   const [bloqueado, setBloqueado] = useState(edicionesUsadas >= 3);
-  
+  const [loading, setLoading] = useState(false);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let nuevoValor = e.target.value;
 
@@ -65,17 +67,19 @@ export default function NombreEditable({ initialValue, campoEnEdicion, setCampoE
 
   const handleGuardar = async () => {
     const nombreAValidar = valorTemporal.trim();
+    setLoading(true);
 
     try {
       const response = await updateUserField('nombre_completo', nombreAValidar);
-      
+
       if (response.message === 'No hubo cambios en el valor.') {
         setEditando(false);
         setCampoEnEdicion(null);
         setFeedback('No se realizaron cambios.');
+        setLoading(false);
+        setTimeout(() => setFeedback(''), 3000);
         return;
       }
-      console.log('✅ Nombre actualizado en la base de datos:', response);
 
       if (response.edicionesRestantes === 0){
         setBloqueado(true);
@@ -88,8 +92,15 @@ export default function NombreEditable({ initialValue, campoEnEdicion, setCampoE
       setValor(nombreAValidar);
       setEditando(false);
       setCampoEnEdicion(null);
-      setTimeout(() => setFeedback(''), 5000);
+      setLoading(false);
+
+      setTimeout(() => {
+        setFeedback('');
+        setInfoExtra('');
+      }, 3000);
+
     } catch (err) {
+      setLoading(false);
       if (err instanceof Error) {
         console.error('❌ Error al actualizar:', err.message);
         setErrorMensaje(err.message || 'Hubo un error al guardar.' );
@@ -157,14 +168,14 @@ export default function NombreEditable({ initialValue, campoEnEdicion, setCampoE
         <div className="flex gap-2 mt-2 justify-end">
           <button
             onClick={handleGuardar}
-            disabled={!!errorMensaje || valorTemporal.trim() === ''} // 👈 NUEVO: deshabilita si hay error o está vacío
+            disabled={!!errorMensaje || valorTemporal.trim() === '' || loading}
             className={`px-4 py-1 rounded-lg transition cursor-pointer shadow-[var(--sombra)] ${
-              !!errorMensaje || valorTemporal.trim() === ''
+              !!errorMensaje || valorTemporal.trim() === '' || loading
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-[var(--naranja-46)] text-[var(--blanco)] hover:bg-[var(--naranja)]'
             }`}
           >
-            Guardar
+            {loading ? 'Guardando...' : 'Guardar'}
           </button>
           <button
             onClick={handleCancelar}

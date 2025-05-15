@@ -74,6 +74,8 @@ export default function registroDriver() {
   const perfilRef = useRef<HTMLInputElement>(null);
 
   const user = useUser();
+  //const [telefonoUsuario, setTelefonoUsuario] = useState('');
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -84,10 +86,18 @@ export default function registroDriver() {
       setIsLoading(false);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user?.telefono) {
+      setTelefonoUsuario(String(user.telefono)); // fuerza a texto
+    }
+  }, [user]);
+
   
 
   useEffect(() => {
     const savedData = localStorage.getItem("registroDriverPaso1");
+
     if (savedData) {
       const parsed = JSON.parse(savedData);
       setSexo(parsed.sexo || '');
@@ -96,9 +106,9 @@ export default function registroDriver() {
       setCategoriaLicencia(parsed.categoria || '');
       setFechaEmisionState(parsed.fecha_emision || '');
       setFechaVencimientoState(parsed.fecha_vencimiento || '');
-      
     }
-  }, []);
+  }, [user]);
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -311,11 +321,16 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
     if (fecha > new Date()) {
       return;
   };*/}
+  
   const validarFechaEmision = (fecha: string): boolean => {
-    const fechaActual = new Date();
     const fechaSeleccionada = new Date(fecha);
-    return fechaSeleccionada <= fechaActual;
-  }
+    const hoy = new Date();
+    const fechaMinima = new Date();
+    fechaMinima.setFullYear(hoy.getFullYear() - 5);
+
+    return fechaSeleccionada >= fechaMinima && fechaSeleccionada <= hoy;
+  };
+
   const validarFechaVencimiento = (fecha: string): boolean => {
     const fechaActual = new Date();
     const fechaSeleccionada = new Date(fecha);
@@ -371,6 +386,10 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
       setErrorLicencia(true);
       setMensajeErrorLicencia('Este campo no puede estar vacío');
       valido = false;
+    } else if (NroLicencia.length < 6) {
+      setErrorLicencia(true);
+      setMensajeErrorLicencia('Debe tener mínimo 6 dígitos');
+      valido = false;
     } else if (!validarNroLicencia(NroLicencia)) {
       setErrorLicencia(true);
       setMensajeErrorLicencia('Debe tener hasta 8 caracteres alfanuméricos');
@@ -378,7 +397,8 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
     } else {
       setErrorLicencia(false);
       setMensajeErrorLicencia('');
-    }    
+    }
+  
 
     if (!categoriaLicencia) {
       setErrorCategoria(true);
@@ -393,27 +413,44 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
       setErrorFechaEmision(true);
       setMensajeErrorFechaEmision('Seleccione una fecha');
       valido = false;
-    } else if (!validarFechaEmision(fechaEmision)) {
-      setErrorFechaEmision(true);
-      setMensajeErrorFechaEmision('La fecha no puede ser posterior a hoy');
-      valido = false;
     } else {
-      setErrorFechaEmision(false);
-      setMensajeErrorFechaEmision('');
-    }    
+      const añoEmision = new Date(fechaEmision).getFullYear();
+      if (añoEmision > 9999) {
+        setErrorFechaEmision(true);
+        setMensajeErrorFechaEmision('El año no puede exceder 9999');
+        valido = false;
+      } else if (!validarFechaEmision(fechaEmision)) {
+        setErrorFechaEmision(true);
+        setMensajeErrorFechaEmision('La fecha no puede ser posterior a hoy');
+        valido = false;
+      } else {
+        setErrorFechaEmision(false);
+        setMensajeErrorFechaEmision('');
+      }
+    }
+
+
 
     if (!fechaVencimiento) {
       setErrorFechaVencimiento(true);
       setMensajeErrorFechaVencimiento('Seleccione una fecha');
       valido = false;
-    } else if (!validarFechaVencimiento(fechaVencimiento)) {
-      setErrorFechaVencimiento(true);
-      setMensajeErrorFechaVencimiento('La fecha debe ser posterior a hoy');
-      valido = false;
     } else {
-      setErrorFechaVencimiento(false);
-      setMensajeErrorFechaVencimiento('');
-    }    
+      const añoVencimiento = new Date(fechaVencimiento).getFullYear();
+      if (añoVencimiento > 9999) {
+        setErrorFechaVencimiento(true);
+        setMensajeErrorFechaVencimiento('El año no puede exceder 9999');
+        valido = false;
+      } else if (!validarFechaVencimiento(fechaVencimiento)) {
+        setErrorFechaVencimiento(true);
+        setMensajeErrorFechaVencimiento('La fecha debe ser posterior a hoy');
+        valido = false;
+      } else {
+        setErrorFechaVencimiento(false);
+        setMensajeErrorFechaVencimiento('');
+      }
+    }
+
 
     if (!anverso) {
       setErrorAnverso('Debe subir la imagen del anverso de la licencia');
@@ -468,9 +505,29 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
         reversoUrl: urlReverso
       };
 
-      localStorage.setItem("registroDriverPaso1", JSON.stringify(data));
+      if (user?.email) {
+        localStorage.setItem("registroDriverPaso1", JSON.stringify(data));
+      }
+
+
       router.push("/home/Driver/seleccionarRenter");
     };
+
+    const limitarAñoMaximo = (e: React.FormEvent<HTMLInputElement>) => {
+      const input = e.currentTarget;
+      const value = input.value;
+
+      const partes = value.split("-");
+      if (partes.length === 3) {
+        const año = partes[0];
+        if (año.length > 4 || parseInt(año) > 2099) {
+          input.value = "0000-01-01"; 
+          const changeEvent = new Event('input', { bubbles: true });
+          input.dispatchEvent(changeEvent);
+        }
+      }
+    };
+
 
 
   return (
@@ -502,7 +559,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
             {/* Fila 1: Nombre y sexo */}
             <div className="flex w-full gap-4">
               <div className="w-2/3 relative">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                <div className="absolute left-4 top-4">
                   <User className="w-6 h-6 text-[#11295B]" />
                 </div>
                 <input
@@ -521,7 +578,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
 
               {/* Sexo */}
               <div className="w-1/3 relative">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                <div className="absolute left-4 top-4">
                   <Sexo className={`w-6 h-6 ${errorSexo ? 'text-red-500' : 'text-[#11295B]'}`} />
                 </div>
                 <span className={`absolute left-12 top-[0.4rem] text-xs font-bold px-1 z-10 ${errorSexo ? 'text-red-500' : 'text-[#11295B]'}`}>
@@ -566,58 +623,79 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
 
 
             <div className="relative w-full mt-4">
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+              <div className="absolute left-4 top-4">
                 <Phone className={`w-6 h-6 ${errorTelefono ? 'text-red-500' : 'text-[#11295B]'}`} />
               </div>
-              <input
-                type="text"
-                id="telefono"
-                name="telefono"
-                value={telefonoUsuario}
-                placeholder="77777777"
-                onChange={(e) => {
-                  const input = e.target.value;
 
-                  if (!/^\d*$/.test(input)) return;
+              {user?.telefono !== undefined && user?.telefono !== null ? (
+                // 📱 Teléfono ya registrado → solo mostrarlo, desactivado, sin fondo gris
+                <>
+                  <input
+                    type="text"
+                    value={String(user.telefono)}
+                    disabled
+                    className="w-full pl-12 pr-4 pt-6 pb-2 rounded-lg border border-[#11295B] text-[#11295B] placeholder:text-[#11295B]/50"
+                  />
+                  <span className="absolute left-12 top-[0.4rem] text-xs font-bold px-1 text-[#11295B]">
+                    Teléfono
+                  </span>
+                </>
+              ) : (
+                // 🆕 No hay teléfono → input editable con validaciones
+                <>
+                  <input
+                    type="text"
+                    id="telefono"
+                    name="telefono"
+                    value={telefonoUsuario}
+                    placeholder="77777777"
+                    onChange={(e) => {
+                      const input = e.target.value;
 
-                  if (input.length > 8) return;
+                      if (!/^\d*$/.test(input)) return;
+                      if (input.length > 8) return;
+                      if (input.length === 1 && !/^[67]$/.test(input)) return;
 
-                  if (input.length === 1 && !/^[67]$/.test(input)) return;
+                      setTelefonoUsuario(input);
 
-                  setTelefonoUsuario(input);
-
-                  if (input === '') {
-                    setErrorTelefono(true);
-                    setMensajeErrorTelefono('Este campo no puede estar vacío');
-                  } else if (!/^[67]/.test(input)) {
-                    setErrorTelefono(true);
-                    setMensajeErrorTelefono('El número debe comenzar con 6 o 7');
-                  } else if (input.length < 8) {
-                    setErrorTelefono(true);
-                    setMensajeErrorTelefono('El número debe tener exactamente 8 dígitos');
-                  } else {
-                    setErrorTelefono(false);
-                    setMensajeErrorTelefono('');
-                  }
-                }}
-                className={`w-full pl-12 pr-4 pt-6 pb-2 rounded-lg border focus:outline-none focus:ring-1 ${
-                  errorTelefono
-                    ? 'border-red-500 text-red-500 placeholder:text-red-400 focus:ring-red-500'
-                    : 'border-[#11295B] text-[#11295B] placeholder:text-[#11295B]/50 focus:ring-[#11295B]'
-                }`}
-              />
-              {errorTelefono && (
-                <p className="text-sm text-red-500 mt-1">{mensajeErrorTelefono}</p>
+                      if (input === '') {
+                        setErrorTelefono(true);
+                        setMensajeErrorTelefono('Este campo no puede estar vacío');
+                      } else if (!/^[67]/.test(input)) {
+                        setErrorTelefono(true);
+                        setMensajeErrorTelefono('El número debe comenzar con 6 o 7');
+                      } else if (input.length < 8) {
+                        setErrorTelefono(true);
+                        setMensajeErrorTelefono('El número debe tener exactamente 8 dígitos');
+                      } else {
+                        setErrorTelefono(false);
+                        setMensajeErrorTelefono('');
+                      }
+                    }}
+                    className={`w-full pl-12 pr-4 pt-6 pb-2 rounded-lg border focus:outline-none focus:ring-1 ${
+                      errorTelefono
+                        ? 'border-red-500 text-red-500 placeholder:text-red-400 focus:ring-red-500'
+                        : 'border-[#11295B] text-[#11295B] placeholder:text-[#11295B]/50 focus:ring-[#11295B]'
+                    }`}
+                  />
+                  {errorTelefono && (
+                    <p className="text-sm text-red-500 mt-1">{mensajeErrorTelefono}</p>
+                  )}
+                  <span className={`absolute left-12 top-[0.4rem] text-xs font-bold px-1 ${
+                    errorTelefono ? 'text-red-500' : 'text-[#11295B]'
+                  }`}>
+                    Teléfono
+                  </span>
+                </>
               )}
-              <span className={`absolute left-12 top-[0.4rem] text-xs font-bold px-1 ${errorTelefono ? 'text-red-500' : 'text-[#11295B]'}`}>
-                Teléfono
-              </span>
             </div>
 
 
 
+
+
             <div className="relative w-full mt-4">
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+              <div className="absolute left-4 top-4">
               <LicenciaConductor className={`w-6 h-6 ${errorLicencia ? 'text-red-500' : 'text-[#11295B]'}`} />
               </div>
               <input
@@ -666,7 +744,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
 
 
             <div className="relative w-full mt-4">
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+              <div className="absolute left-4 top-4">
                 <Categoria className={`w-6 h-6 ${errorCategoria ? 'text-red-500' : 'text-[#11295B]'}`} />
               </div>
               <span className={`absolute left-12 top-[0.4rem] text-xs font-bold px-1 z-10 ${errorCategoria ? 'text-red-500' : 'text-[#11295B]'}`}>
@@ -715,11 +793,14 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
             <div className="flex w-full mt-4 gap-4">
               {/* Fecha de emisión */}
               <div className="w-1/2 relative">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                <div className="absolute left-4 top-4">
                   <Calendar className={`w-6 h-6 ${errorFechaEmision ? 'text-red-500' : 'text-[#11295B]'}`} />
                 </div>
                 <input
                   type="date"
+                  min="1900-01-01"
+                  max="2099-12-31"
+                  onInput={limitarAñoMaximo}
                   id="fechaEmision"
                   value={fechaEmision}
                   onChange={(e) => {
@@ -729,15 +810,22 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                     const esValida = validarFechaEmision(value);
                     const esMayorQueVencimiento = fechaVencimiento && new Date(value) > new Date(fechaVencimiento);
 
-                    if (!value) {
-                      setErrorFechaEmision(true);
-                      setMensajeErrorFechaEmision('Seleccione una fecha');
-                    } else if (!esValida) {
-                      setErrorFechaEmision(true);
-                      setMensajeErrorFechaEmision('La fecha no puede ser posterior a hoy');
-                    } else if (esMayorQueVencimiento) {
-                      setErrorFechaEmision(true);
-                      setMensajeErrorFechaEmision('No puede ser mayor que la fecha de vencimiento');
+                    if (!esValida) {
+                      const fechaSeleccionada = new Date(value);
+                      const hoy = new Date();
+                      const hace5Anios = new Date();
+                      hace5Anios.setFullYear(hoy.getFullYear() - 5);
+
+                      if (fechaSeleccionada < hace5Anios) {
+                        setErrorFechaEmision(true);
+                        setMensajeErrorFechaEmision('La fecha no puede ser anterior a hace 5 años');
+                      } else if (fechaSeleccionada > hoy) {
+                        setErrorFechaEmision(true);
+                        setMensajeErrorFechaEmision('La fecha no puede ser posterior a hoy');
+                      } else {
+                        setErrorFechaEmision(true);
+                        setMensajeErrorFechaEmision('Fecha inválida');
+                      }
                     } else {
                       setErrorFechaEmision(false);
                       setMensajeErrorFechaEmision('');
@@ -761,11 +849,14 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
 
               {/* Fecha de vencimiento */}
               <div className="w-1/2 relative">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                <div className="absolute left-4 top-4">
                   <Calendar className={`w-6 h-6 ${errorFechaVencimiento ? 'text-red-500' : 'text-[#11295B]'}`} />
                 </div>
                 <input
                   type="date"
+                  min="1900-01-01"
+                  max="2099-12-31"
+                  onInput={limitarAñoMaximo}
                   id="fechaVencimiento"
                   name="fechaVencimiento"
                   value={fechaVencimiento}
@@ -821,16 +912,22 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => {
                     e.preventDefault();
-                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                      const droppedFile = e.dataTransfer.files[0];
-                      const fakeEvent = {
-                        target: {
-                          files: [droppedFile]
-                        }
-                      } as unknown as React.ChangeEvent<HTMLInputElement>;                      
-                      handleFileChange(fakeEvent, 'anverso');
+                    const file = e.dataTransfer.files?.[0];
+                    if (!file) return;
+
+                    if (file.type !== "image/png") {
+                      setErrorAnverso("Solo se permiten imágenes en formato PNG.");
+                      setAnverso(null);
+                      return;
                     }
+
+                    const fakeEvent = {
+                      target: { files: [file] }
+                    } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+                    handleFileChange(fakeEvent, "anverso");
                   }}
+
                 >
                   <span className="text-[#11295B] font-semibold z-10 relative">
                     {anverso ? 'Cambiar imagen' : 'Subir imagen / Arrastrar aquí'}
@@ -863,16 +960,22 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                   onClick={() => reversoRef.current?.click()}
                   onDrop={(e) => {
                     e.preventDefault();
-                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                      const droppedFile = e.dataTransfer.files[0];
-                      const fakeEvent = {
-                        target: {
-                          files: [droppedFile]
-                        }
-                      } as unknown as React.ChangeEvent<HTMLInputElement>;
-                      handleFileChange(fakeEvent, 'reverso');
+                    const file = e.dataTransfer.files?.[0];
+                    if (!file) return;
+
+                    if (file.type !== "image/png") {
+                      setErrorReverso("Solo se permiten imágenes en formato PNG.");
+                      setReverso(null);
+                      return;
                     }
+
+                    const fakeEvent = {
+                      target: { files: [file] }
+                    } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+                    handleFileChange(fakeEvent, "reverso");
                   }}
+
                   onDragOver={(e) => e.preventDefault()}
                 >
                   <span className="text-[#11295B] font-semibold z-10 relative">
@@ -902,17 +1005,20 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
             
 
 
-              <div className="flex justify-end gap-8 mt-12 px-6">
+              <div className="flex justify-end gap-8 mt-1 px-6">
                 <button
-                  onClick={() => router.push('/home/homePage')}
-                  className="min-w-[160px] bg-[#E0E0E0] hover:bg-[#d6d6d6] text-[#11295B] font-semibold px-10 py-3 rounded-full transition duration-200 ease-in-out"
+                  onClick={() => {
+                    localStorage.removeItem("registroDriverPaso1");
+                    router.push('/home/homePage');
+                  }}
+                  className="px-6 py-2 bg-[#E0E0E0] text-[#11295B] rounded-full text-sm font-semibold hover:bg-[#d6d6d6] transition"
                 >
                   Atrás
                 </button>
 
                 <button
                   onClick={handleSubmit}
-                  className="min-w-[160px] bg-[#FFD180] hover:bg-[#ffc86c] text-white font-semibold px-10 py-3 rounded-full transition duration-200 ease-in-out"
+                  className="px-6 py-2 bg-[#FFA800] text-white rounded-full text-sm font-semibold hover:bg-[#e19900] transition"
                 >
                   Continuar
                 </button>
