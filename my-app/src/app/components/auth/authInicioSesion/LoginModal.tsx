@@ -132,7 +132,9 @@ export default function LoginModal({
       localStorage.setItem("token", result.token);
       localStorage.setItem("nombre_completo", result.user.nombre_completo);
 
-      setError("");
+      localStorage.setItem('loginSuccess', 'true');
+      
+      setError('');
       setHasLoginError(false);
       // Puedes hacer algo con el resultado aquí, como guardar el token o redirigir
       router.push("/home/homePage");

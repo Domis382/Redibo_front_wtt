@@ -4,6 +4,10 @@ import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+const getDaysInMonth = (month: number, year: number) => {
+  return new Date(year, month, 0).getDate();
+};
+
 export default function CompleteProfileModal({
   onComplete,
   onClose,
@@ -24,7 +28,13 @@ export default function CompleteProfileModal({
   const [phoneMessage, setPhoneMessage] = useState("");
   const [error, setError] = useState("");
   const userEmail = localStorage.getItem("google_email");
-  const [termsError, setTermsError] = useState(false); // Estado para manejar el error de aceptación
+  const [termsError, setTermsError] = useState(false);  // Estado para manejar el error de aceptación
+
+  const daysInMonth = birthMonth && birthYear
+  ? getDaysInMonth(Number(birthMonth), Number(birthYear))
+  : 31;
+
+  //manejo de errores
 
   let hasErrors = false;
 
@@ -62,6 +72,16 @@ export default function CompleteProfileModal({
     }
   }, [birthDay, birthMonth, birthYear]); // 🔁 DEPENDENCIAS
 
+  useEffect(() => {
+    if (birthDay && birthMonth && birthYear) {
+      const validDays = getDaysInMonth(Number(birthMonth), Number(birthYear));
+      if (Number(birthDay) > validDays) {
+        setBirthDay("");
+      }
+    }
+  }, [birthMonth, birthYear]);
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -79,18 +99,17 @@ export default function CompleteProfileModal({
       setError("Completa la fecha de nacimiento");
       return;
     }
+  //validacion de terminos y condiciones
+  const terms = (form.elements.namedItem("terms") as HTMLInputElement)
+  .checked;
 
-    //validacion de terminos y condiciones
-    const terms = (form.elements.namedItem("terms") as HTMLInputElement)
-      .checked;
-
-    if (!terms) {
-      setTermsError(true);
-      hasErrors = true;
-    } else {
-      setTermsError(false);
-    }
-    if (hasErrors) return; // Si hay al menos un error, no continúa
+if (!terms) {
+  setTermsError(true);
+  hasErrors = true;
+} else {
+  setTermsError(false);
+}
+if (hasErrors) return; // Si hay al menos un error, no continúa
 
     const birthDate = new Date(
       Number(birthYear),
@@ -203,6 +222,9 @@ export default function CompleteProfileModal({
       if (onSuccess) {
         onSuccess(); // ✅ activa el modal de éxito
       }
+      
+
+
     } catch (err) {
       console.error("Error al guardar datos de perfil", err);
       setError("No se pudo guardar los datos. Intenta nuevamente.");
@@ -279,7 +301,7 @@ export default function CompleteProfileModal({
                 className={styles.select}
               >
                 <option value="">DD</option>
-                {[...Array(31)].map((_, i) => (
+                {[...Array(daysInMonth)].map((_, i) => (
                   <option key={i + 1} value={i + 1}>
                     {i + 1}
                   </option>
@@ -347,7 +369,6 @@ export default function CompleteProfileModal({
                   }
 
                   // Validar que el número tenga exactamente 8 dígitos
-                  // Validar que el número tenga exactamente 8 dígitos
                   if (newValue.length > 8) {
                     setPhoneError(true);
                     setPhoneMessage(
@@ -385,6 +406,33 @@ export default function CompleteProfileModal({
               </p>
             )}
           </div>
+          {/* campo terminos y condiciones */}
+            <div className={styles.terms}>
+                <input type="checkbox" id="terms" name="terms" />
+                <label htmlFor="terms" className={styles.termsLabel}>
+                  <span className={styles.termsText}>
+                    He leído y acepto los{" "}
+                    <a href="/home/terminos" className={styles.termsLink}>
+                      Términos y condiciones
+                    </a>{" "}
+                    de la página
+                  </span>
+                </label>
+              </div>
+
+              {termsError && (
+                <p
+                  style={{
+                    color: "#E30000",
+                    fontSize: "0.75rem",
+                    marginTop: "0.2rem",
+                  }}
+                >
+                  Debes aceptar los términos y condiciones para continuar
+                </p>
+              )}
+
+
 
           {error && (
             <p

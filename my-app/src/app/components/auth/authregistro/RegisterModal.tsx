@@ -199,20 +199,20 @@ export default function RegisterModal({
     let hasErrors = false;
 
     //validaciones de nombre de usuario
-    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ'’\- ]+$/;
+    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
-    if (name.length < 3) {
+    if (nameValue.trim().length < 3) {
       setNameError(true);
       setNameMessage("El nombre debe tener al menos 3 caracteres");
       hasErrors = true;
-    } else if (name.length > 50) {
+    } else if (nameValue.trim().length > 50) {
       setNameError(true);
       setNameMessage("El nombre no puede superar los 50 caracteres");
       hasErrors = true;
-    } else if (!nameRegex.test(name)) {
+    } else if (!nameRegex.test(nameValue.trim())) {
       setNameError(true);
       setNameMessage(
-        "El nombre solo puede contener letras, tildes, espacios, guiones y apóstrofes"
+        "El nombre solo puede contener letras, tildes y espacios. No se permiten números."
       );
       hasErrors = true;
     } else {
@@ -536,9 +536,9 @@ export default function RegisterModal({
                 <div className={styles.halfInput2}>
                   <label
                     htmlFor="name"
-                    style={{ color: getLabelColor(passwordError) }}
+                    style={{ color: getLabelColor(nameError) }}
                   >
-                    {nameError ? "Nombre completo" : "Nombre completo"}
+                    Nombre completo
                   </label>
 
                   <input
@@ -546,10 +546,6 @@ export default function RegisterModal({
                     id="name"
                     name="name"
                     value={nameValue}
-                    onChange={(e) => {
-                      setNameValue(e.target.value);
-                      localStorage.setItem("register_name", e.target.value);
-                    }}
                     maxLength={50}
                     placeholder={
                       nameError
@@ -559,7 +555,29 @@ export default function RegisterModal({
                     className={`${styles.input} ${
                       nameError ? styles.errorInput : ""
                     }`}
+                    onChange={(e) => {
+                      const input = e.target.value;
+                      const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/;
+
+                      if (regex.test(input) || input === "") {
+                        setNameValue(input);
+                        localStorage.setItem("register_name", input);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (/\d/.test(e.key)) {
+                        e.preventDefault(); // Bloquea ingreso de números
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const paste = e.clipboardData.getData("text");
+                      if (/\d/.test(paste)) {
+                        e.preventDefault(); // Bloquea pegado de números
+                      }
+                    }}
+                    required
                   />
+
                   {nameError && nameMessage && (
                     <p
                       style={{
@@ -1023,7 +1041,7 @@ export default function RegisterModal({
               onClick={() => {
                 setShowSuccessModal(false);
                 onClose(); // Cierra el modal de registro
-                setTimeout(() => onLoginClick(), 100); // Abre login (opcional)
+                setTimeout(() => (window.location.href = "/"), 100);
                 /* onClose(); */
               }}
               className={styles.successButton}
