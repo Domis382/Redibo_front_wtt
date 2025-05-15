@@ -202,8 +202,15 @@ export default function HomePage() {
             console.log("✅ Perfil completado:", data);
           }}
           onSuccess={() => {
-            console.log("✅ Modal de perfil completado");
+            console.log(
+              "✅ Perfil actualizado, redirigiendo automáticamente..."
+            );
             setShowCompleteProfileModal(false);
+
+            // Redirección automática
+            setTimeout(() => {
+              window.location.href = "/home/homePage";
+            }, 500); // pequeño delay opcional
           }}
           onClose={() => setShowCompleteProfileModal(false)}
         />
