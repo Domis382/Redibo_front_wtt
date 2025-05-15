@@ -74,12 +74,18 @@ export default function HomePage() {
     }
 
     if (googleComplete === "true" && shouldOpen === "true") {
+      if (token && email) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("google_email", email);
+      }
       console.log("🧩 Mostrar CompleteProfileModal desde /home");
       setShowCompleteProfileModal(true);
       localStorage.removeItem("openCompleteProfileModal");
 
       const cleanUrl = new URL(window.location.href);
       cleanUrl.searchParams.delete("googleComplete");
+      cleanUrl.searchParams.delete("token");
+      cleanUrl.searchParams.delete("email");
       window.history.replaceState({}, "", cleanUrl.toString());
     }
 
