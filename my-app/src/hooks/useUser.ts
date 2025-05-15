@@ -7,6 +7,9 @@ interface User {
   telefono?: number;
   fecha_nacimiento?: string;
   foto_perfil?: string;
+  ediciones_nombre: number; // 👈 AÑADIR ESTO
+  ediciones_telefono: number;
+  ediciones_fecha: number;
 }
 
 export const useUser = () => {

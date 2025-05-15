@@ -11,7 +11,10 @@ import LoginModal from '../components/auth/authInicioSesion/LoginModal';
 import styles from './Home.module.css';
 import RegisterModal from '../components/auth/authregistro/RegisterModal';
 
+import ModalLoginExitoso from '@/app/components/modals/ModalLoginExitoso';
+
 export default function HomePage() {
+
   const searchParams = useSearchParams();
 
   const [activeModal, setActiveModal] = useState<'login' | 'register'| null>(null);
@@ -46,6 +49,16 @@ export default function HomePage() {
       setActiveModal('register'); // Abrir modal de registro al volver de Google
     }
   }, [searchParams]);
+  
+  const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
+
+  useEffect(() => {
+    const loginSuccess = localStorage.getItem('loginSuccess');
+    if (loginSuccess === 'true') {
+      setShowLoginSuccessModal(true);
+      localStorage.removeItem('loginSuccess');
+    }
+  }, []);
 
   return (
     
@@ -119,6 +132,10 @@ export default function HomePage() {
         <div className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-[9999]">
           Usuario bloqueado temporalmente. Intenta nuevamente más tarde.
         </div>
+      )}
+
+      {showLoginSuccessModal && (
+        <ModalLoginExitoso onClose={() => setShowLoginSuccessModal(false)} />
       )}
 
       {activeModal === 'login' && (
