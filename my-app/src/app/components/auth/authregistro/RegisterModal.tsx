@@ -141,11 +141,11 @@ export default function RegisterModal({
 
   // ✅ CASO 3: modal de perfil
   
-  if (googleComplete === "true" && shouldOpen === "true") {
+  /* if (googleComplete === "true" && shouldOpen === "true") {
     setShowCompleteProfile(true);
     localStorage.removeItem("openCompleteProfileModal");
     console.log("🧩 Mostrar modal CompleteProfileModal");
-  }
+  } */
 
   // ✅ CASO 4: error de cuenta ya registrada
   const googleError = params.get("error");
@@ -428,8 +428,6 @@ export default function RegisterModal({
       console.error(error);
       setError("No se pudo conectar al servidor.");
     }
-
-    /* setShowCompleteProfileModal(true); */
   };
 
   return (

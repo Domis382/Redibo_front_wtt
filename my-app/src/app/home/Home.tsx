@@ -10,9 +10,12 @@ import NewPasswordModal from "../components/auth/authRecuperarContrasena/NewPass
 import LoginModal from "../components/auth/authInicioSesion/LoginModal";
 import styles from "./Home.module.css";
 import RegisterModal from "../components/auth/authregistro/RegisterModal";
+import CompleteProfileModal from "@/app/components/auth/authregistro/CompleteProfileModal";
 
 export default function HomePage() {
   const searchParams = useSearchParams();
+  const [showCompleteProfileModal, setShowCompleteProfileModal] =
+    useState(false);
   const [hasRedirected, setHasRedirected] = useState(false); // 👈 Evita doble redirect
 
   const [activeModal, setActiveModal] = useState<"login" | "register" | null>(
@@ -47,6 +50,7 @@ export default function HomePage() {
   };
 
   useEffect(() => {
+    /* const params = new URLSearchParams(window.location.search); */
     const autoLogin = searchParams.get("googleAutoLogin");
     const token = searchParams.get("token");
     const email = searchParams.get("email");
@@ -70,9 +74,13 @@ export default function HomePage() {
     }
 
     if (googleComplete === "true" && shouldOpen === "true") {
-      console.log("🧩 Mostrar modal de perfil desde /home");
+      console.log("🧩 Mostrar CompleteProfileModal desde /home");
+      setShowCompleteProfileModal(true);
       localStorage.removeItem("openCompleteProfileModal");
-      setActiveModal("register"); // 👈 Esto abrirá el `RegisterModal`
+
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete("googleComplete");
+      window.history.replaceState({}, "", cleanUrl.toString());
     }
 
     // Si viene con login automático NO mostrar ningún modal
@@ -179,6 +187,19 @@ export default function HomePage() {
         <RegisterModal
           onClose={() => setActiveModal(null)}
           onLoginClick={() => setActiveModal("login")}
+        />
+      )}
+
+      {showCompleteProfileModal && (
+        <CompleteProfileModal
+          onComplete={(data) => {
+            console.log("✅ Perfil completado:", data);
+          }}
+          onSuccess={() => {
+            console.log("✅ Modal de perfil completado");
+            setShowCompleteProfileModal(false);
+          }}
+          onClose={() => setShowCompleteProfileModal(false)}
         />
       )}
     </div>
