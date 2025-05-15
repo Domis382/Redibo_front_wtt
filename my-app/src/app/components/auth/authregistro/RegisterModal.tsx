@@ -987,7 +987,7 @@ export default function RegisterModal({
               onClick={() => {
                 setShowSuccessModal(false);
                 onClose(); // Cierra el modal de registro
-                setTimeout(() => onLoginClick(), 100); // Abre login (opcional)
+                setTimeout(() =>  window.location.href = "/", 100); 
                 /* onClose(); */
               }}
               className={styles.successButton}
