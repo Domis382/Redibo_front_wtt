@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+const getDaysInMonth = (month: number, year: number) => {
+  return new Date(year, month, 0).getDate();
+};
 
 export default function CompleteProfileModal({
   onComplete,
@@ -25,7 +28,16 @@ export default function CompleteProfileModal({
   const [phoneMessage, setPhoneMessage] = useState("");
   const [error, setError] = useState("");
   const userEmail = localStorage.getItem("google_email");
-   
+  const [termsError, setTermsError] = useState(false);  // Estado para manejar el error de aceptación
+
+  const daysInMonth = birthMonth && birthYear
+  ? getDaysInMonth(Number(birthMonth), Number(birthYear))
+  : 31;
+
+  //manejo de errores
+
+  let hasErrors = false;
+
   useEffect(() => {
     if (!birthDay || !birthMonth || !birthYear) {
       setBirthError("");
@@ -60,9 +72,19 @@ export default function CompleteProfileModal({
     }
   }, [birthDay, birthMonth, birthYear]); // 🔁 DEPENDENCIAS
 
+  useEffect(() => {
+    if (birthDay && birthMonth && birthYear) {
+      const validDays = getDaysInMonth(Number(birthMonth), Number(birthYear));
+      if (Number(birthDay) > validDays) {
+        setBirthDay("");
+      }
+    }
+  }, [birthMonth, birthYear]);
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    const form = e.target as HTMLFormElement;
     if (!name.trim()) {
       setError("El nombre es obligatorio");
       return;
@@ -77,13 +99,24 @@ export default function CompleteProfileModal({
       setError("Completa la fecha de nacimiento");
       return;
     }
+  //validacion de terminos y condiciones
+  const terms = (form.elements.namedItem("terms") as HTMLInputElement)
+  .checked;
+
+if (!terms) {
+  setTermsError(true);
+  hasErrors = true;
+} else {
+  setTermsError(false);
+}
+if (hasErrors) return; // Si hay al menos un error, no continúa
 
     const birthDate = new Date(
       Number(birthYear),
       Number(birthMonth) - 1,
       Number(birthDay)
     );
-      //Validaciones Fecha de nacimiento
+    //Validaciones Fecha de nacimiento
     if (birthDate > new Date()) {
       setError("La fecha de nacimiento no puede ser futura");
       return;
@@ -160,7 +193,9 @@ export default function CompleteProfileModal({
         const data = await res.json();
 
         if (data.message?.includes("registrado con email")) {
-          alert("Esta cuenta ya fue registrada con correo y contraseña. Por favor inicia sesión manualmente.");
+          alert(
+            "Esta cuenta ya fue registrada con correo y contraseña. Por favor inicia sesión manualmente."
+          );
           return; //No continuar ni cerrar el modal
         }
 
@@ -172,25 +207,27 @@ export default function CompleteProfileModal({
       if (onSuccess) {
         onSuccess(); // ✅ activa el modal de éxito
       }
+      
+
+
     } catch (err) {
       console.error("Error al guardar datos de perfil", err);
       setError("No se pudo guardar los datos. Intenta nuevamente.");
     }
-    /*  onComplete({
-      name: name.trim(),
-      birthDate: birthDate.toISOString(),
-    });
-
-    if (onSuccess) onSuccess();
-    onClose(); */
   };
 
-  
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <h2 className={styles.title}>REGISTRARSE</h2>
-        <p style={{ textAlign: "center", marginBottom: "1rem", fontWeight: 500, color: "blue" }}>
+        <p
+          style={{
+            textAlign: "center",
+            marginBottom: "1rem",
+            fontWeight: 500,
+            color: "blue",
+          }}
+        >
           ¡Ya casi acabas!
         </p>
 
@@ -213,12 +250,12 @@ export default function CompleteProfileModal({
                   setName(input);
 
                   if (input.trim().length > 0 && input.trim().length < 3) {
-                      setNameError("El nombre debe tener al menos 3 caracteres");
-                 } else if (input.trim().length > 49) {
-                  setNameError("El nombre no debe exceder los 50 caracteres");
-                 } else {
-                   setNameError("");
-                 }
+                    setNameError("El nombre debe tener al menos 3 caracteres");
+                  } else if (input.trim().length > 49) {
+                    setNameError("El nombre no debe exceder los 50 caracteres");
+                  } else {
+                    setNameError("");
+                  }
                 }
               }}
               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
@@ -227,7 +264,13 @@ export default function CompleteProfileModal({
               required
             />
             {nameError && (
-              <p style={{ color: "#E30000", fontSize: "0.75rem", marginTop: "0.5rem" }}>
+              <p
+                style={{
+                  color: "#E30000",
+                  fontSize: "0.75rem",
+                  marginTop: "0.5rem",
+                }}
+              >
                 {nameError}
               </p>
             )}
@@ -237,32 +280,58 @@ export default function CompleteProfileModal({
           <div className={styles.halfInput}>
             <label>Fecha de nacimiento</label>
             <div className={styles.birthInputs}>
-              <select value={birthDay} onChange={(e) => setBirthDay(e.target.value)} className={styles.select}>
+              <select
+                value={birthDay}
+                onChange={(e) => setBirthDay(e.target.value)}
+                className={styles.select}
+              >
                 <option value="">DD</option>
-                {[...Array(31)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1}</option>
+                {[...Array(daysInMonth)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
                 ))}
               </select>
-              <select value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} className={styles.select}>
+              <select
+                value={birthMonth}
+                onChange={(e) => setBirthMonth(e.target.value)}
+                className={styles.select}
+              >
                 <option value="">MM</option>
                 {[...Array(12)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
                 ))}
               </select>
-              <select value={birthYear} onChange={(e) => setBirthYear(e.target.value)} className={styles.select}>
+              <select
+                value={birthYear}
+                onChange={(e) => setBirthYear(e.target.value)}
+                className={styles.select}
+              >
                 <option value="">AAAA</option>
                 {[...Array(100)].map((_, i) => {
                   const year = new Date().getFullYear() - i;
-                  return <option key={year} value={year}>{year}</option>;
+                  return (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  );
                 })}
               </select>
             </div>
           </div>
           {birthError && (
-            <p style={{ color: "#E30000", fontSize: "0.75rem", marginTop: "0.25rem" }}>
-               {birthError}
-           </p>
-          )}     
+            <p
+              style={{
+                color: "#E30000",
+                fontSize: "0.75rem",
+                marginTop: "0.25rem",
+              }}
+            >
+              {birthError}
+            </p>
+          )}
 
           {/* Teléfono */}
           <div className={styles.halfInput}>
@@ -277,12 +346,23 @@ export default function CompleteProfileModal({
                 onChange={(e) => {
                   const newValue = e.target.value;
 
+                  // Validar que solo se permitan números
                   if (!/^\d*$/.test(newValue)) {
                     setPhoneError(true);
                     setPhoneMessage("Solo se permiten números");
                     return;
                   }
 
+                  // Validar que el número tenga exactamente 8 dígitos
+                  if (newValue.length > 8) {
+                    setPhoneError(true);
+                    setPhoneMessage(
+                      "El número debe tener exactamente 8 dígitos"
+                    );
+                    return;
+                  }
+
+                  // Actualizar el estado solo si es válido
                   setPhoneValue(newValue);
                   localStorage.setItem("register_phone", newValue);
                   setPhoneError(false);
@@ -291,19 +371,58 @@ export default function CompleteProfileModal({
                 maxLength={8}
                 inputMode="numeric"
                 pattern="[0-9]*"
-                placeholder={phoneError ? "Número inválido" : "Ingrese número de teléfono"}
-                className={`${styles.input3} ${phoneError ? styles.errorInput : ""}`}
+                placeholder={
+                  phoneError ? "Número inválido" : "Ingrese número de teléfono"
+                }
+                className={`${styles.input3} ${
+                  phoneError ? styles.errorInput : ""
+                }`}
               />
             </div>
             {phoneError && phoneMessage && (
-              <p style={{ color: "#E30000", fontSize: "0.75rem", marginTop: "0.25rem" }}>
+              <p
+                style={{
+                  color: "#E30000",
+                  fontSize: "0.75rem",
+                  marginTop: "0.25rem",
+                }}
+              >
                 {phoneMessage}
               </p>
             )}
           </div>
+          {/* campo terminos y condiciones */}
+            <div className={styles.terms}>
+                <input type="checkbox" id="terms" name="terms" />
+                <label htmlFor="terms" className={styles.termsLabel}>
+                  <span className={styles.termsText}>
+                    He leído y acepto los{" "}
+                    <a href="/home/terminos" className={styles.termsLink}>
+                      Términos y condiciones
+                    </a>{" "}
+                    de la página
+                  </span>
+                </label>
+              </div>
+
+              {termsError && (
+                <p
+                  style={{
+                    color: "#E30000",
+                    fontSize: "0.75rem",
+                    marginTop: "0.2rem",
+                  }}
+                >
+                  Debes aceptar los términos y condiciones para continuar
+                </p>
+              )}
+
+
 
           {error && (
-            <p style={{ color: "red", fontSize: "0.75rem", marginTop: "0.5rem" }}>
+            <p
+              style={{ color: "red", fontSize: "0.75rem", marginTop: "0.5rem" }}
+            >
               {error}
             </p>
           )}
@@ -314,41 +433,43 @@ export default function CompleteProfileModal({
         </form>
 
         <button
-           className={styles.close}
-           onClick={async() => {
-               toast.info("Registro cancelado", {
-                 position: "top-center",
-                  autoClose: 2500,
-                 hideProgressBar: false,
-                 closeOnClick: true,
-                 pauseOnHover: false,
-                 draggable: false,
-                 theme: "light",
-               });
+          className={styles.close}
+          onClick={async () => {
+            toast.info("Registro cancelado", {
+              position: "top-center",
+              autoClose: 2500,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: false,
+              draggable: false,
+              theme: "light",
+            });
 
-               try {
-                const email = localStorage.getItem("google_email");
-                if (email) {
-                  await fetch("http://localhost:3001/api/delete-incomplete-user", {
+            try {
+              const email = localStorage.getItem("google_email");
+              if (email) {
+                await fetch(
+                  "http://localhost:3001/api/delete-incomplete-user",
+                  {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email }),
-                  });
-                }
-              } catch (err) {
-                console.error("No se pudo eliminar el usuario incompleto", err);
-              } 
+                  }
+                );
+              }
+            } catch (err) {
+              console.error("No se pudo eliminar el usuario incompleto", err);
+            }
 
-               setTimeout(() => {
-                onClose();
-              }, 2000); 
-             }}
+            setTimeout(() => {
+              onClose();
+            }, 2000);
+          }}
         >
-             ✕
+          ✕
         </button>
       </div>
       <ToastContainer />
     </div>
   );
 }
-
