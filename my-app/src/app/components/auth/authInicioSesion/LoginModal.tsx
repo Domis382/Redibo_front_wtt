@@ -19,7 +19,7 @@ export default function LoginModal({
       setLoading(true);
       console.log("🚀 Iniciando registro con Google");
 
-      localStorage.removeItem("openCompleteProfileModal"); // 👈 NO abrir modal de perfil
+      localStorage.setItem("openCompleteProfileModal", "true"); // 👈 NO abrir modal de perfil
       localStorage.setItem("welcomeMessage", "¡Bienvenido de nuevo!");
       // Pequeño delay para que el spinner alcance a mostrarse
       setTimeout(() => {
