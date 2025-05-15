@@ -442,32 +442,6 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
             </p>
           )}
 
-          {/* campo terminos y condiciones */}
-          <div className={styles.terms}>
-            <input type="checkbox" id="terms" name="terms" />
-            <label htmlFor="terms" className={styles.termsLabel}>
-              <span className={styles.termsText}>
-                He leído y acepto los{" "}
-                <a href="/home/terminos" className={styles.termsLink}>
-                  Términos y condiciones
-                </a>{" "}
-                de la página
-              </span>
-            </label>
-          </div>
-
-          {termsError && (
-            <p
-              style={{
-                color: "#E30000",
-                fontSize: "0.75rem",
-                marginTop: "0.2rem",
-              }}
-            >
-              Debes aceptar los términos y condiciones para continuar
-            </p>
-          )}
-
           <button type="submit" className={styles.button}>
             ¡Registrarme!
           </button>
