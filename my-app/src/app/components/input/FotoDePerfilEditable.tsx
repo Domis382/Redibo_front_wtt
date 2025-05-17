@@ -58,8 +58,7 @@ export default function FotoDePerfilEditable({setImagePreviewUrl }: Props) {
         return;
       }
   
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreviewUrl(previewUrl);
+      setImagePreviewUrl(null);
       setFeedback('Subiendo foto...');
   
       // 👉 Crear FormData para enviar el archivo
@@ -68,12 +67,11 @@ export default function FotoDePerfilEditable({setImagePreviewUrl }: Props) {
   
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('https://redibo-back-wtt.vercel.app/api/upload-profile-photo', {
+        const response = await fetch('http://localhost:3001/api/upload-profile-photo', {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          credentials: "include",
           body: formData,
         });
   
@@ -82,6 +80,8 @@ export default function FotoDePerfilEditable({setImagePreviewUrl }: Props) {
         if (response.ok) {
           setFeedback('Foto de perfil actualizada exitosamente.');
           setAlertType('success');
+
+          setImagePreviewUrl(data.foto_perfil); // 👈 Usa la URL real de Firebase
           console.log('Foto guardada en:', data.foto_perfil);
         } else {
           console.error(data.message);
