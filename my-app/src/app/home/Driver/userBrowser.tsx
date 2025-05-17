@@ -15,13 +15,13 @@ interface User {
   foto_perfil: string;
 }
 
-const getUserProfileImage = (fotoPerfil: string | undefined): string => {
+/* const getUserProfileImage = (fotoPerfil: string | undefined): string => {
   if (!fotoPerfil) {
     return "/userIcon.svg";
   }
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
   return `${baseUrl}${fotoPerfil.startsWith("/") ? "" : "/"}${fotoPerfil}`;
-};
+}; */
 
 const UserBrowser = () => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -32,7 +32,7 @@ const UserBrowser = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   /* const [showSuccessModal, setShowSuccessModal] = useState(false); */
   const router = useRouter();
-  const [fallback, setFallback] = useState(false); 
+  /* const [fallback, setFallback] = useState(false); */ 
 
 
 
@@ -198,7 +198,7 @@ const UserBrowser = () => {
       >
         <div className="flex items-center space-x-4">
           <img
-            src={profileImageUrl}
+            src={user.foto_perfil ? profileImageUrl : "/user-default.svg"}
             alt={`Foto de ${user.nombre_completo}`}
             className="w-12 h-12 rounded-full object-cover border border-gray-200"
             onError={() => setFallback(true)}
