@@ -30,7 +30,6 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const currentYear = new Date().getFullYear();
 
   // Validación en tiempo real para cada campo cuando cambia
   useEffect(() => {
@@ -242,7 +241,7 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
   // Validación completa antes de enviar
   const validate = () => {
     let isValid = true;
-    let newErrors: Record<string, string> = {};
+    const newErrors: Record<string, string> = {};
 
     if (!termsAccepted) {
       newErrors.terms = "Debes aceptar los términos";
@@ -293,28 +292,20 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
   };
 
   const handleSubmit = () => {
-    if (!validate()) return;
+  if (!validate()) return;
 
-    if (selectedOption === "card") {
-      onNext({
-        tipo: "card",
-        cardNumber,
-        expiration: expiryDate,
-        cvv,
-        cardHolder,
-      });
-    } else if (selectedOption === "qr") {
-      onNext({
-        tipo: "qr",
-        qrImage,
-      });
-    } else if (selectedOption === "cash") {
-      onNext({
-        tipo: "cash",
-        efectivoDetalle: cashDetail,
-      });
-    }
-  };
+  onNext({
+    tipo: selectedOption!,
+    cardNumber,
+    expiration: expiryDate,
+    cvv,
+    cardHolder,
+    qrImage,
+    efectivoDetalle: cashDetail,
+  });
+};
+
+
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -369,79 +360,125 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
     setTermsAccepted(false);
     await onClose(); // Esto eliminará el vehículo si el usuario cancela
   };
-
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
       <div className="bg-white p-10 rounded-3xl shadow-2xl max-w-xl w-full relative text-[#11295B]">
-        <button onClick={handleCancel} className="absolute right-6 top-6 hover:text-red-500 transition">
+        <button
+          onClick={handleCancel}
+          className="absolute right-6 top-6 hover:text-red-500 transition"
+        >
           <X size={24} />
         </button>
 
         <h2 className="text-lg font-semibold text-center">Bienvenido a</h2>
-        <h1 className="text-3xl font-bold text-center text-[#FCA311] mb-1">REDIBO</h1>
-        <h3 className="text-xl font-semibold text-center mb-2">FORMAS DE PAGO</h3>
-        <p className="text-center text-sm text-gray-600 mb-6">Elige cómo recibir el pago de tus rentas</p>
+        <h1 className="text-3xl font-bold text-center text-[#FCA311] mb-1">
+          REDIBO
+        </h1>
+        <h3 className="text-xl font-semibold text-center mb-2">
+          FORMAS DE PAGO
+        </h3>
+        <p className="text-center text-sm text-gray-600 mb-6">
+          Elige cómo recibir el pago de tus rentas
+        </p>
 
         <div className="space-y-6">
           {/* TARJETA */}
-          <div className={`rounded-xl shadow-md border-[1.5px] ${selectedOption === "card" ? "border-[#11295B]" : "border-gray-300"}`}>
-            <div className="flex items-center pl-4 py-3 border-b cursor-pointer" onClick={() => setSelectedOption("card")}> 
-              <input type="radio" checked={selectedOption === "card"} readOnly className="mr-2 accent-[#11295B]" />
-              <label className="text-sm font-medium flex items-center"><CreditCard size={16} className="mr-1" /> Número de tarjeta</label>
+          <div
+            className={`rounded-xl shadow-md border-[1.5px] ${
+              selectedOption === "card" ? "border-[#11295B]" : "border-gray-300"
+            }`}
+          >
+            <div
+              className="flex items-center pl-4 py-3 border-b cursor-pointer"
+              onClick={() => setSelectedOption("card")}
+            >
+              <input
+                type="radio"
+                checked={selectedOption === "card"}
+                readOnly
+                className="mr-2 accent-[#11295B]"
+              />
+              <label className="text-sm font-medium flex items-center">
+                <CreditCard size={16} className="mr-1" /> Número de tarjeta
+              </label>
             </div>
             {selectedOption === "card" && (
               <div className="p-4 space-y-3">
                 <div>
-                  <input 
-                    value={cardNumber} 
+                  <input
+                    value={cardNumber}
                     onChange={handleCardNumberChange}
-                    onBlur={() => handleBlur('cardNumber')} 
-                    placeholder="1111 2222 3333 4444" 
-                    className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.cardNumber ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} 
+                    onBlur={() => handleBlur("cardNumber")}
+                    placeholder="1111 2222 3333 4444"
+                    className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${
+                      errors.cardNumber
+                        ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]"
+                        : "border-[#11295B]"
+                    }`}
                   />
                   {touched.cardNumber && errors.cardNumber && (
-                    <p className="text-xs text-[#DC2626] mt-1">{errors.cardNumber}</p>
+                    <p className="text-xs text-[#DC2626] mt-1">
+                      {errors.cardNumber}
+                    </p>
                   )}
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <input 
-                      value={expiryDate} 
+                    <input
+                      value={expiryDate}
                       onChange={handleExpiryDateChange}
-                      onBlur={() => handleBlur('expiryDate')} 
-                      placeholder="MM/YY" 
-                      className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.expiryDate ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} 
+                      onBlur={() => handleBlur("expiryDate")}
+                      placeholder="MM/YY"
+                      className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${
+                        errors.expiryDate
+                          ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]"
+                          : "border-[#11295B]"
+                      }`}
                     />
                     {touched.expiryDate && errors.expiryDate && (
-                      <p className="text-xs text-[#DC2626] mt-1">{errors.expiryDate}</p>
+                      <p className="text-xs text-[#DC2626] mt-1">
+                        {errors.expiryDate}
+                      </p>
                     )}
                   </div>
-                  
+
                   <div>
-                    <input 
-                      value={cvv} 
+                    <input
+                      value={cvv}
                       onChange={handleCVVChange}
-                      onBlur={() => handleBlur('cvv')} 
-                      placeholder="CVV" 
-                      className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.cvv ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} 
+                      onBlur={() => handleBlur("cvv")}
+                      placeholder="CVV"
+                      className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${
+                        errors.cvv
+                          ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]"
+                          : "border-[#11295B]"
+                      }`}
                     />
                     {touched.cvv && errors.cvv && (
-                      <p className="text-xs text-[#DC2626] mt-1">{errors.cvv}</p>
+                      <p className="text-xs text-[#DC2626] mt-1">
+                        {errors.cvv}
+                      </p>
                     )}
                   </div>
                 </div>
-                
+
                 <div>
-                  <input 
-                    value={cardHolder} 
+                  <input
+                    value={cardHolder}
                     onChange={handleCardHolderChange}
-                    onBlur={() => handleBlur('cardHolder')} 
-                    placeholder="Nombre del titular" 
-                    className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${errors.cardHolder ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`} 
+                    onBlur={() => handleBlur("cardHolder")}
+                    placeholder="Nombre del titular"
+                    className={`w-full border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none ${
+                      errors.cardHolder
+                        ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]"
+                        : "border-[#11295B]"
+                    }`}
                   />
                   {touched.cardHolder && errors.cardHolder && (
-                    <p className="text-xs text-[#DC2626] mt-1">{errors.cardHolder}</p>
+                    <p className="text-xs text-[#DC2626] mt-1">
+                      {errors.cardHolder}
+                    </p>
                   )}
                 </div>
               </div>
@@ -449,12 +486,21 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
           </div>
 
           {/* QR */}
-          <div className={`rounded-xl shadow-md border-[1.5px] ${selectedOption === "qr" ? "border-[#11295B]" : "border-gray-300"}`}>
+          <div
+            className={`rounded-xl shadow-md border-[1.5px] ${
+              selectedOption === "qr" ? "border-[#11295B]" : "border-gray-300"
+            }`}
+          >
             <div
               className="flex items-center pl-4 py-3 border-b cursor-pointer"
               onClick={() => setSelectedOption("qr")}
             >
-              <input type="radio" checked={selectedOption === "qr"} readOnly className="mr-2 accent-[#11295B]" />
+              <input
+                type="radio"
+                checked={selectedOption === "qr"}
+                readOnly
+                className="mr-2 accent-[#11295B]"
+              />
               <label className="text-sm font-medium flex items-center">
                 <QrCode size={16} className="mr-1" /> Imagen de QR
               </label>
@@ -462,12 +508,18 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
 
             {selectedOption === "qr" && (
               <div className="p-4">
-                <label className="block font-semibold mb-1 text-[#11295B]">Imagen QR</label>
-                <p className="text-sm text-gray-600 mb-2">Asegúrate que el código sea legible</p>
+                <label className="block font-semibold mb-1 text-[#11295B]">
+                  Imagen QR
+                </label>
+                <p className="text-sm text-gray-600 mb-2">
+                  Asegúrate que el código sea legible
+                </p>
 
                 <div
                   className={`relative w-32 h-24 border-[1.5px] border-dashed rounded-xl text-center flex items-center justify-center cursor-pointer transition-all duration-200 ${
-                    errors.qrImage ? "border-[#DC2626]" : "border-[#11295B] hover:bg-gray-100"
+                    errors.qrImage
+                      ? "border-[#DC2626]"
+                      : "border-[#11295B] hover:bg-gray-100"
                   }`}
                   onClick={() => fileInputRef.current?.click()}
                   onDrop={handleDrop}
@@ -475,7 +527,11 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
                 >
                   {previewImg ? (
                     <>
-                      <img src={previewImg} alt="QR" className="w-full h-full object-contain rounded" />
+                      <img
+                        src={previewImg}
+                        alt="QR"
+                        className="w-full h-full object-contain rounded"
+                      />
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -501,31 +557,55 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
                 />
 
                 {errors.qrImage ? (
-                  <p className="text-sm text-[#DC2626] text-center mt-2">{errors.qrImage}</p>
+                  <p className="text-sm text-[#DC2626] text-center mt-2">
+                    {errors.qrImage}
+                  </p>
                 ) : (
-                  <p className="text-xs text-gray-500 mt-2">*Solo formatos .jpg, .jpeg o .png</p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    *Solo formatos .jpg, .jpeg o .png
+                  </p>
                 )}
               </div>
             )}
           </div>
 
           {/* EFECTIVO */}
-          <div className={`rounded-xl shadow-md border-[1.5px] ${selectedOption === "cash" ? "border-[#11295B]" : "border-gray-300"}`}>
-            <div className="flex items-center pl-4 py-3 border-b cursor-pointer" onClick={() => setSelectedOption("cash")}> 
-              <input type="radio" checked={selectedOption === "cash"} readOnly className="mr-2 accent-[#11295B]" />
-              <label className="text-sm font-medium flex items-center"><DollarSign size={16} className="mr-1" /> Dinero efectivo</label>
+          <div
+            className={`rounded-xl shadow-md border-[1.5px] ${
+              selectedOption === "cash" ? "border-[#11295B]" : "border-gray-300"
+            }`}
+          >
+            <div
+              className="flex items-center pl-4 py-3 border-b cursor-pointer"
+              onClick={() => setSelectedOption("cash")}
+            >
+              <input
+                type="radio"
+                checked={selectedOption === "cash"}
+                readOnly
+                className="mr-2 accent-[#11295B]"
+              />
+              <label className="text-sm font-medium flex items-center">
+                <DollarSign size={16} className="mr-1" /> Dinero efectivo
+              </label>
             </div>
             {selectedOption === "cash" && (
               <div className="p-4">
-                <textarea 
-                  value={cashDetail} 
+                <textarea
+                  value={cashDetail}
                   onChange={(e) => setCashDetail(e.target.value)}
-                  onBlur={() => handleBlur('cashDetail')} 
-                  placeholder="Descripción" 
-                  className={`w-full h-24 border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none resize-none ${errors.cashDetail ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]" : "border-[#11295B]"}`}
+                  onBlur={() => handleBlur("cashDetail")}
+                  placeholder="Descripción"
+                  className={`w-full h-24 border-[1.5px] rounded-lg px-4 py-3 text-sm outline-none resize-none ${
+                    errors.cashDetail
+                      ? "border-[#DC2626] text-[#DC2626] placeholder-[#DC2626]"
+                      : "border-[#11295B]"
+                  }`}
                 />
                 {touched.cashDetail && errors.cashDetail && (
-                  <p className="text-sm text-[#DC2626] mt-2">{errors.cashDetail}</p>
+                  <p className="text-sm text-[#DC2626] mt-2">
+                    {errors.cashDetail}
+                  </p>
                 )}
               </div>
             )}
@@ -534,26 +614,40 @@ export default function PaymentRegistrationModal({ onClose, onNext }: Props) {
 
         {/* TÉRMINOS */}
         <div className="flex items-start mt-6">
-          <input 
-            type="checkbox" 
-            checked={termsAccepted} 
-            onChange={() => setTermsAccepted(!termsAccepted)} 
-            className="mt-1 mr-2 accent-[#FCA311]" 
+          <input
+            type="checkbox"
+            checked={termsAccepted}
+            onChange={() => setTermsAccepted(!termsAccepted)}
+            className="mt-1 mr-2 accent-[#FCA311]"
           />
-          <label className="text-xs text-gray-600">He leído y acepto los <span className="text-[#FCA311] font-medium">Términos y condiciones</span>.</label>
+          <label className="text-xs text-gray-600">
+            He leído y acepto los{" "}
+            <span className="text-[#FCA311] font-medium">
+              Términos y condiciones
+            </span>
+            .
+          </label>
         </div>
-        {errors.terms && <p className="text-sm text-[#DC2626] text-center mt-2">{errors.terms}</p>}
-        {errors.method && <p className="text-sm text-[#DC2626] text-center mt-2">{errors.method}</p>}
+        {errors.terms && (
+          <p className="text-sm text-[#DC2626] text-center mt-2">
+            {errors.terms}
+          </p>
+        )}
+        {errors.method && (
+          <p className="text-sm text-[#DC2626] text-center mt-2">
+            {errors.method}
+          </p>
+        )}
 
         <div className="flex justify-between mt-8">
-          <button 
-            onClick={handleCancel} 
+          <button
+            onClick={handleCancel}
             className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-8 rounded-full"
           >
             Cancelar
           </button>
-          <button 
-            onClick={handleSubmit} 
+          <button
+            onClick={handleSubmit}
             className="bg-[#FCA311] hover:bg-[#e29510] text-white font-semibold py-2 px-8 rounded-full"
           >
             Registrar

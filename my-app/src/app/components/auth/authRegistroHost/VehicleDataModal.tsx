@@ -49,13 +49,14 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
     // Limitar a máximo 7 caracteres
     const valorLimitado = valor.slice(0, 7);
     setPlaca(valorLimitado);
-    
+
     // Formatear errores específicos basados en el patrón correcto
     if (valorLimitado.length === 7) {
       if (!validarPlaca(valorLimitado)) {
         setErrors((prev) => ({
           ...prev,
-          placa: "Formato inválido. Debe ser 4 dígitos seguidos de 3 letras (ej. 1234ABC)",
+          placa:
+            "Formato inválido. Debe ser 4 dígitos seguidos de 3 letras (ej. 1234ABC)",
         }));
       } else {
         setErrors((prev) => ({ ...prev, placa: undefined }));
@@ -63,7 +64,8 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
     } else if (valorLimitado.length > 0) {
       setErrors((prev) => ({
         ...prev,
-        placa: "La placa debe tener exactamente 7 caracteres (4 números + 3 letras)",
+        placa:
+          "La placa debe tener exactamente 7 caracteres (4 números + 3 letras)",
       }));
     } else {
       setErrors((prev) => ({ ...prev, placa: undefined }));
@@ -74,11 +76,13 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
     // Limitar a máximo 8 caracteres
     const valorLimitado = valor.slice(0, 8);
     setSoat(valorLimitado);
-    
+
     if (valorLimitado.length === 8) {
       setErrors((prev) => ({
         ...prev,
-        soat: validarSOAT(valorLimitado) ? undefined : "Formato inválido. Solo se permiten números.",
+        soat: validarSOAT(valorLimitado)
+          ? undefined
+          : "Formato inválido. Solo se permiten números.",
       }));
     } else if (valorLimitado.length > 0) {
       setErrors((prev) => ({
@@ -100,7 +104,7 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
     if (validFiles.length !== files.length) {
       setErrors((prev) => ({
         ...prev,
-        imagenes: "Solo se permiten imágenes JPG/PNG de hasta 5MB"
+        imagenes: "Solo se permiten imágenes JPG/PNG de hasta 5MB",
       }));
     }
 
@@ -148,7 +152,7 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
     }
 
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -169,66 +173,85 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
     const nuevosErrores: typeof errors = {};
 
     if (!validarPlaca(placa)) {
-      nuevosErrores.placa = "Formato inválido. Debe ser 4 dígitos seguidos de 3 letras (ej. 1234ABC)";
+      nuevosErrores.placa =
+        "Formato inválido. Debe ser 4 dígitos seguidos de 3 letras (ej. 1234ABC)";
     }
     if (!validarSOAT(soat)) {
-      nuevosErrores.soat = "Formato inválido. El número de seguro debe tener exactamente 8 dígitos";
+      nuevosErrores.soat =
+        "Formato inválido. El número de seguro debe tener exactamente 8 dígitos";
     }
     if (imagenes.length < 3 || imagenes.length > 6) {
       nuevosErrores.imagenes = "Debes subir entre 3 y 6 imágenes";
     }
 
     setErrors(nuevosErrores);
-
     if (Object.keys(nuevosErrores).length > 0) return;
 
+    // ✅ No se hace fetch aquí, solo se pasa al siguiente modal
     onNext({
-      placa, soat, imagenes,
-      id_vehiculo: 0
+      placa,
+      soat,
+      imagenes,
+      id_vehiculo: 0, // opcional si aún no se guarda
     });
   };
 
   // Función para manejar los cambios en el campo de placa con formato específico
   const handlePlacaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value.toUpperCase();
-    
+
     // Permitir solo números en los primeros 4 caracteres
     if (valor.length <= 4) {
       if (/^\d*$/.test(valor)) {
         validarYActualizarPlaca(valor);
       }
-    } 
+    }
     // Permitir solo letras en los siguientes 3 caracteres
     else if (valor.length <= 7) {
       const numeros = valor.substring(0, 4);
-      const letras = valor.substring(4).replace(/[^A-Z]/g, '');
+      const letras = valor.substring(4).replace(/[^A-Z]/g, "");
       validarYActualizarPlaca(numeros + letras);
     }
   };
-  
+
   // Función para manejar los cambios en el campo de SOAT permitiendo solo números
   const handleSoatChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value;
-    const valorFiltrado = valor.replace(/\D/g, ''); // Solo permite dígitos
+    const valorFiltrado = valor.replace(/\D/g, ""); // Solo permite dígitos
     validarYActualizarSOAT(valorFiltrado);
   };
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
       <div className="bg-white text-[#11295B] p-10 rounded-3xl shadow-2xl max-w-xl w-full relative">
-        <button onClick={onClose} className="absolute right-6 top-6 text-2xl text-[#11295B]">
+        <button
+          onClick={onClose}
+          className="absolute right-6 top-6 text-2xl text-[#11295B]"
+        >
           <X />
         </button>
 
-        <h2 className="text-lg font-semibold text-center text-[#11295B]">Bienvenido a</h2>
-        <h1 className="text-3xl font-bold text-center text-[#FCA311] drop-shadow-sm mb-2">REDIBO</h1>
-        <h3 className="text-xl text-center font-semibold text-[#11295B] mb-1">REGISTRARSE COMO HOST</h3>
-        <p className="text-center text-sm text-gray-600 mb-6">Ingresa datos de tu vehículo</p>
+        <h2 className="text-lg font-semibold text-center text-[#11295B]">
+          Bienvenido a
+        </h2>
+        <h1 className="text-3xl font-bold text-center text-[#FCA311] drop-shadow-sm mb-2">
+          REDIBO
+        </h1>
+        <h3 className="text-xl text-center font-semibold text-[#11295B] mb-1">
+          REGISTRARSE COMO HOST
+        </h3>
+        <p className="text-center text-sm text-gray-600 mb-6">
+          Ingresa datos de tu vehículo
+        </p>
 
         {/* Campo Placa */}
         <div className="mb-4">
           <div className="relative flex items-center">
-            <img src="/placa.svg" alt="icono placa" className="absolute left-3 w-6 h-6" />
+            <img
+              src="/placa.svg"
+              alt="icono placa"
+              className="absolute left-3 w-6 h-6"
+            />
             <input
               type="text"
               placeholder="Placa (ej. 1234ABC)"
@@ -236,14 +259,19 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
               onChange={handlePlacaChange}
               maxLength={7}
               className={`pl-12 w-full border-2 rounded-lg px-4 py-3 outline-none text-lg placeholder:text-[#11295B]/50 font-semibold ${
-                errors.placa ? "border-red-500 text-red-500 placeholder-red-400" : "border-[#11295B]"
+                errors.placa
+                  ? "border-red-500 text-red-500 placeholder-red-400"
+                  : "border-[#11295B]"
               }`}
             />
           </div>
-          {errors.placa && <p className="text-sm text-red-500 mt-1">{errors.placa}</p>}
+          {errors.placa && (
+            <p className="text-sm text-red-500 mt-1">{errors.placa}</p>
+          )}
           {!errors.placa && placa.length > 0 && placa.length < 7 && (
             <p className="text-sm text-amber-500 mt-1">
-              La placa debe tener exactamente 7 caracteres ({7 - placa.length} restantes)
+              La placa debe tener exactamente 7 caracteres ({7 - placa.length}{" "}
+              restantes)
             </p>
           )}
         </div>
@@ -251,32 +279,49 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
         {/* Campo SOAT */}
         <div className="mb-4">
           <div className="relative flex items-center">
-            <img src="/seguro.svg" alt="icono seguro" className="absolute left-3 w-6 h-6" />
+            <img
+              src="/seguro.svg"
+              alt="icono seguro"
+              className="absolute left-3 w-6 h-6"
+            />
             <input
               type="text"
-              inputMode="numeric" 
+              inputMode="numeric"
               pattern="[0-9]*"
               placeholder="Número de seguro (8 dígitos)"
               value={soat}
               onChange={handleSoatChange}
               maxLength={8}
               className={`pl-12 w-full border-2 rounded-lg px-4 py-3 outline-none text-lg placeholder:text-[#11295B]/50 font-semibold ${
-                errors.soat ? "border-red-500 text-red-500 placeholder-red-400" : "border-[#11295B]"
+                errors.soat
+                  ? "border-red-500 text-red-500 placeholder-red-400"
+                  : "border-[#11295B]"
               }`}
             />
           </div>
-          {errors.soat && <p className="text-sm text-red-500 mt-1">{errors.soat}</p>}
+          {errors.soat && (
+            <p className="text-sm text-red-500 mt-1">{errors.soat}</p>
+          )}
           {!errors.soat && soat.length > 0 && soat.length < 8 && (
             <p className="text-sm text-amber-500 mt-1">
-              El número de seguro debe tener exactamente 8 dígitos ({8 - soat.length} restantes)
+              El número de seguro debe tener exactamente 8 dígitos (
+              {8 - soat.length} restantes)
             </p>
           )}
         </div>
 
         {/* Campo Imágenes */}
-        <div className={`mb-4 bg-gray-100 rounded-xl p-4 ${errors.imagenes ? "border-2 border-red-500" : ""}`}>
-          <label className="block font-semibold mb-1 text-[#11295B]">Imágenes del auto</label>
-          <p className="text-sm text-gray-600 mb-2">Asegúrate de tomar las fotos en un lugar bien iluminado</p>
+        <div
+          className={`mb-4 bg-gray-100 rounded-xl p-4 ${
+            errors.imagenes ? "border-2 border-red-500" : ""
+          }`}
+        >
+          <label className="block font-semibold mb-1 text-[#11295B]">
+            Imágenes del auto
+          </label>
+          <p className="text-sm text-gray-600 mb-2">
+            Asegúrate de tomar las fotos en un lugar bien iluminado
+          </p>
 
           <div
             className={`border border-dashed rounded p-4 text-center cursor-pointer transition-all duration-200 ${
@@ -289,7 +334,9 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
           >
             <Upload className="mx-auto mb-2 w-6 h-6" />
             <p className="font-medium">Subir imágenes del vehículo</p>
-            <p className="text-xs text-gray-500">Haz clic o arrastra aquí tus imágenes</p>
+            <p className="text-xs text-gray-500">
+              Haz clic o arrastra aquí tus imágenes
+            </p>
           </div>
 
           <input
@@ -304,7 +351,9 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
           {errors.imagenes ? (
             <p className="text-sm text-red-500 mt-2">{errors.imagenes}</p>
           ) : (
-            <p className="text-xs text-gray-500 mt-2">*Mínimo 3 fotos del vehículo: frontal, lateral y trasera</p>
+            <p className="text-xs text-gray-500 mt-2">
+              *Mínimo 3 fotos del vehículo: frontal, lateral y trasera
+            </p>
           )}
 
           {/* Vista previa */}
@@ -313,7 +362,10 @@ const VehicleDataModal: React.FC<Props> = ({ onNext, onClose }) => {
               {imagenes.map((img, idx) => {
                 const src = URL.createObjectURL(img);
                 return (
-                  <div key={`${idx}-${img.name}`} className="relative w-20 h-20">
+                  <div
+                    key={`${idx}-${img.name}`}
+                    className="relative w-20 h-20"
+                  >
                     <img
                       src={src}
                       alt={`imagen-${idx}`}
