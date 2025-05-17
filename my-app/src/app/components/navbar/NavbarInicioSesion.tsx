@@ -17,7 +17,7 @@ export default function NavbarInicioSesion({ onBecomeHost, onBecomeDriver }: { o
 
   useEffect(() => {
     if (user?.foto_perfil) {
-      setProfilePhotoUrl(user.foto_perfil);
+      setProfilePhotoUrl(`https://redibo-back-wtt.vercel.app${user.foto_perfil}`);
     } else {
       setProfilePhotoUrl(null);
     }
