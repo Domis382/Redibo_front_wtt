@@ -25,7 +25,7 @@ export default function UserPerfilPage() {
   useEffect(() => {
     if (user?.foto_perfil) {
       setImagePreviewUrl(user.foto_perfil);
-      console.log('✅ Foto cargada:', `http://localhost:3001${user.foto_perfil}`);
+      console.log('✅ Foto cargada:', `https://redibo-back-wtt.vercel.app${user.foto_perfil}`);
     }
   }, [user]);
   if (!user) return null;
