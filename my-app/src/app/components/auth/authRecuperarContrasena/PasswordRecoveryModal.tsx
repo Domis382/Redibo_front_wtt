@@ -45,10 +45,9 @@ const PasswordRecoveryModal = ({
     }
 
     try {
-      const response = await fetch('https://redibo-back-wtt.vercel.app/api/recover-password', {
+      const response = await fetch('https://redibo-back-wtt.vercel.app//api/recover-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: "include",
         body: JSON.stringify({ email }),
       });
 

@@ -28,11 +28,12 @@ export default function CompleteProfileModal({
   const [phoneMessage, setPhoneMessage] = useState("");
   const [error, setError] = useState("");
   const userEmail = localStorage.getItem("google_email");
-  const [termsError, setTermsError] = useState(false);  // Estado para manejar el error de aceptación
+  const [termsError, setTermsError] = useState(false); // Estado para manejar el error de aceptación
 
-  const daysInMonth = birthMonth && birthYear
-  ? getDaysInMonth(Number(birthMonth), Number(birthYear))
-  : 31;
+  const daysInMonth =
+    birthMonth && birthYear
+      ? getDaysInMonth(Number(birthMonth), Number(birthYear))
+      : 31;
 
   //manejo de errores
 
@@ -81,7 +82,6 @@ export default function CompleteProfileModal({
     }
   }, [birthMonth, birthYear]);
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -99,17 +99,17 @@ export default function CompleteProfileModal({
       setError("Completa la fecha de nacimiento");
       return;
     }
-  //validacion de terminos y condiciones
-  const terms = (form.elements.namedItem("terms") as HTMLInputElement)
-  .checked;
+    //validacion de terminos y condiciones
+    const terms = (form.elements.namedItem("terms") as HTMLInputElement)
+      .checked;
 
-if (!terms) {
-  setTermsError(true);
-  hasErrors = true;
-} else {
-  setTermsError(false);
-}
-if (hasErrors) return; // Si hay al menos un error, no continúa
+    if (!terms) {
+      setTermsError(true);
+      hasErrors = true;
+    } else {
+      setTermsError(false);
+    }
+    if (hasErrors) return; // Si hay al menos un error, no continúa
 
     const birthDate = new Date(
       Number(birthYear),
@@ -151,18 +151,18 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(
-          "https://redibo-back-wtt.vercel.app/api/check-phone",
+          "https://redibo-back-wtt.vercel.app//api/check-phone",
           {
-            method: "POST",
-            headers: {
+          method: "POST",
+          headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
 
             credentials: "include",
-            body: JSON.stringify({ telefono: parseInt(cleanPhone) }),
-          }
-        );
+          body: JSON.stringify({ telefono: parseInt(cleanPhone) }),
+        }
+      );
 
         const data = await res.json();
         if (data.exists) {
@@ -187,22 +187,22 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
       const token = localStorage.getItem("token");
       console.log("Token a enviar (CompleteProfileModal):", token);
       const res = await fetch(
-        "https://redibo-back-wtt.vercel.app/api/update-profile",
+        "https://redibo-back-wtt.vercel.app//api/update-profile",
         {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // ✅ AQUÍ ESTÁ LA CLAVE
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            email: userEmail,
-            nombre_completo: name.trim(),
-            fecha_nacimiento: birthDate.toISOString(),
-            telefono: "+591" + cleanPhone,
-          }),
-        }
-      );
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // ✅ AQUÍ ESTÁ LA CLAVE
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: userEmail,
+          nombreCompleto: name.trim(),
+          fechaNacimiento: birthDate.toISOString(),
+          telefono: "+591" + cleanPhone,
+        }),
+      }
+    );
 
       if (!res.ok) {
         const data = await res.json();
@@ -222,9 +222,6 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
       if (onSuccess) {
         onSuccess(); // ✅ activa el modal de éxito
       }
-      
-
-
     } catch (err) {
       console.error("Error al guardar datos de perfil", err);
       setError("No se pudo guardar los datos. Intenta nuevamente.");
@@ -367,13 +364,22 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
                     setPhoneMessage("Solo se permiten números");
                     return;
                   }
+                  // Validar que comience con 6 o 7
+                  if (newValue && !/^[67]/.test(newValue)) {
+                    setPhoneError(true);
+                    setPhoneMessage("El número debe comenzar con 6 o 7");
+                    setPhoneValue(newValue);
+                    return;
+                  }
 
-                  // Validar que el número tenga exactamente 8 dígitos
-                  if (newValue.length > 8) {
+                  
+                  // validación en tiempo real de 8 diguitos
+                  if (newValue.length > 0 && newValue.length < 8) {
                     setPhoneError(true);
                     setPhoneMessage(
                       "El número debe tener exactamente 8 dígitos"
                     );
+                    setPhoneValue(newValue);
                     return;
                   }
 
@@ -407,32 +413,30 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
             )}
           </div>
           {/* campo terminos y condiciones */}
-            <div className={styles.terms}>
-                <input type="checkbox" id="terms" name="terms" />
-                <label htmlFor="terms" className={styles.termsLabel}>
-                  <span className={styles.termsText}>
-                    He leído y acepto los{" "}
-                    <a href="/home/terminos" className={styles.termsLink}>
-                      Términos y condiciones
-                    </a>{" "}
-                    de la página
-                  </span>
-                </label>
-              </div>
+          <div className={styles.terms}>
+            <input type="checkbox" id="terms" name="terms" />
+            <label htmlFor="terms" className={styles.termsLabel}>
+              <span className={styles.termsText}>
+                He leído y acepto los{" "}
+                <a href="/home/terminos" className={styles.termsLink}>
+                  Términos y condiciones
+                </a>{" "}
+                de la página
+              </span>
+            </label>
+          </div>
 
-              {termsError && (
-                <p
-                  style={{
-                    color: "#E30000",
-                    fontSize: "0.75rem",
-                    marginTop: "0.2rem",
-                  }}
-                >
-                  Debes aceptar los términos y condiciones para continuar
-                </p>
-              )}
-
-
+          {termsError && (
+            <p
+              style={{
+                color: "#E30000",
+                fontSize: "0.75rem",
+                marginTop: "0.2rem",
+              }}
+            >
+              Debes aceptar los términos y condiciones para continuar
+            </p>
+          )}
 
           {error && (
             <p
@@ -464,11 +468,11 @@ if (hasErrors) return; // Si hay al menos un error, no continúa
               const email = localStorage.getItem("google_email");
               if (email) {
                 await fetch(
-                  "https://redibo-back-wtt.vercel.app/api/delete-incomplete-user",
+                  "https://redibo-back-wtt.vercel.app//api/delete-incomplete-user",
                   {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
-                    credentials: "include",
+                     credentials: "include",
                     body: JSON.stringify({ email }),
                   }
                 );

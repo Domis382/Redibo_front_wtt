@@ -15,14 +15,14 @@ export default function RegisterModal({
     try {
       setLoading(true);
       console.log("🚀 Iniciando registro con Google");
-
+      
       localStorage.setItem("openCompleteProfileModal", "true");
       localStorage.setItem("welcomeMessage", "¡Bienvenido a Redibo!");
       // Pequeño delay para que el spinner alcance a mostrarse
       setTimeout(() => {
         console.log("➡️ Redirigiendo a Google OAuth");
         window.location.href =
-          "https://redibo-back-wtt.vercel.app/api/auth/google";
+          "https://redibo-back-wtt.vercel.app//api/auth/google";
       }, 300); // 300ms = 0.3 segundos
     } catch (error) {
       console.error("❌ Error en registro con Google", error);
@@ -99,7 +99,7 @@ export default function RegisterModal({
   ];
 
   useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.search);
 
   const autoLogin = params.get("googleAutoLogin");
   const googleComplete = params.get("googleComplete");
@@ -124,8 +124,8 @@ export default function RegisterModal({
 
     window.location.href = "/home/homePage";
     router.push("/home/homePage");
-    return;
-  } */
+      return;
+    } */
 
   // ✅ CASO 2: token manual → solo guardar
   if (token && email) {
@@ -142,8 +142,8 @@ export default function RegisterModal({
   // ✅ CASO 3: modal de perfil
   
   /* if (googleComplete === "true" && shouldOpen === "true") {
-    setShowCompleteProfile(true);
-    localStorage.removeItem("openCompleteProfileModal");
+      setShowCompleteProfile(true);
+      localStorage.removeItem("openCompleteProfileModal");
     console.log("🧩 Mostrar modal CompleteProfileModal");
   } */
 
@@ -151,8 +151,8 @@ export default function RegisterModal({
   const googleError = params.get("error");
   if (googleError === "alreadyExists" || googleError === "cuentaExistente") {
     console.log("🧩 Cuenta ya existente");
-    setError("Esta cuenta ya está registrada. Por favor, inicia sesión.");
-    onClose();
+      setError("Esta cuenta ya está registrada. Por favor, inicia sesión.");
+      onClose();
     setTimeout(() => onLoginClick(), 100);
   }
 
@@ -163,14 +163,14 @@ export default function RegisterModal({
     setShowWelcome(true);
     localStorage.removeItem("welcomeMessage");
     setTimeout(() => setShowWelcome(false), 3000);
-  }
+    }
 
-  // ✅ Limpieza general
-  const url = new URL(window.location.href);
-  url.searchParams.delete("googleComplete");
-  url.searchParams.delete("error");
-  window.history.replaceState({}, document.title, url.toString());
-}, []);
+    // ✅ Limpieza general
+    const url = new URL(window.location.href);
+    url.searchParams.delete("googleComplete");
+    url.searchParams.delete("error");
+    window.history.replaceState({}, document.title, url.toString());
+  }, []);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -201,24 +201,23 @@ export default function RegisterModal({
     //validaciones de nombre de usuario
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
-    if (nameValue.trim().length < 3) {
-      setNameError(true);
-      setNameMessage("El nombre debe tener al menos 3 caracteres");
-      hasErrors = true;
-    } else if (nameValue.trim().length > 50) {
-      setNameError(true);
-      setNameMessage("El nombre no puede superar los 50 caracteres");
-      hasErrors = true;
-    } else if (!nameRegex.test(nameValue.trim())) {
-      setNameError(true);
-      setNameMessage(
-        "El nombre solo puede contener letras, tildes y espacios. No se permiten números."
-      );
-      hasErrors = true;
-    } else {
-      setNameError(false);
-      setNameMessage("");
-    }
+if (nameValue.trim().length < 3) {
+  setNameError(true);
+  setNameMessage("El nombre debe tener al menos 3 caracteres");
+  hasErrors = true;
+} else if (nameValue.trim().length > 50) {
+  setNameError(true);
+  setNameMessage("El nombre no puede superar los 50 caracteres");
+  hasErrors = true;
+} else if (!nameRegex.test(nameValue.trim())) {
+  setNameError(true);
+  setNameMessage("El nombre solo puede contener letras, tildes y espacios. No se permiten números.");
+  hasErrors = true;
+} else {
+  setNameError(false);
+  setNameMessage("");
+}
+
 
     //validaciones de email
 
@@ -321,7 +320,7 @@ export default function RegisterModal({
     } else if (age > 85) {
       setBirthError(true);
       setBirthMessage("La edad máxima permitida es de 85 años");
-      hasErrors = true;
+      hasErrors = true;  
     } else {
       setBirthError(false);
       setBirthMessage("");
@@ -345,12 +344,12 @@ export default function RegisterModal({
       // Si pasa validaciones de formato, ahora verificamos si ya está en uso en BD
       try {
         const phoneCheckResponse = await fetch(
-          "https://redibo-back-wtt.vercel.app/api/check-phone",
+          "https://redibo-back-wtt.vercel.app//api/check-phone",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: JSON.stringify({ telefono: parseInt(cleanPhone) }),
+            body: JSON.stringify({ telefono: cleanPhone }),
           }
         );
 
@@ -391,22 +390,22 @@ export default function RegisterModal({
       ).toISOString();
 
       const user = {
-        nombre_completo: name,
+        nombreCompleto: name,
         email,
         contraseña: password,
-        fecha_nacimiento: fechaNacimiento,
-        telefono: phone ? parseInt(cleanPhone) : null,
+        fechaNacimiento: fechaNacimiento,
+        telefono: phone ? cleanPhone : null,
       };
 
       const res = await fetch(
-        "https://redibo-back-wtt.vercel.app/api/register",
+        "https://redibo-back-wtt.vercel.app//api/register",
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(user),
-        }
-      );
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(user),
+      }
+    );
 
       if (res.ok) {
         /* alert("¡Usuario registrado con éxito!"); */
@@ -428,6 +427,7 @@ export default function RegisterModal({
       console.error(error);
       setError("No se pudo conectar al servidor.");
     }
+
   };
 
   return (
@@ -536,9 +536,9 @@ export default function RegisterModal({
                 <div className={styles.halfInput2}>
                   <label
                     htmlFor="name"
-                    style={{ color: getLabelColor(nameError) }}
+                    style={{ color: getLabelColor(passwordError) }}
                   >
-                    Nombre completo
+                    {nameError ? "Nombre completo" : "Nombre completo"}
                   </label>
 
                   <input
@@ -577,7 +577,7 @@ export default function RegisterModal({
                     }}
                     required
                   />
-
+                  
                   {nameError && nameMessage && (
                     <p
                       style={{
@@ -1041,7 +1041,7 @@ export default function RegisterModal({
               onClick={() => {
                 setShowSuccessModal(false);
                 onClose(); // Cierra el modal de registro
-                setTimeout(() => (window.location.href = "/"), 100);
+                setTimeout(() =>  window.location.href = "/", 100); 
                 /* onClose(); */
               }}
               className={styles.successButton}

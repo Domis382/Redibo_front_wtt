@@ -1,18 +1,20 @@
-import { useEffect, useState } from 'react';
+//hooks/useUser.ts
+import { useEffect, useState, useCallback } from 'react';
 
 interface User {
-  id_usuario: number;
-  nombre_completo: string;
+  idUsuario: number;
+  nombreCompleto: string;
   email: string;
   telefono?: number;
-  fecha_nacimiento?: string;
-  foto_perfil?: string;
-  ediciones_nombre: number; // 👈 AÑADIR ESTO
-  ediciones_telefono: number;
-  ediciones_fecha: number;
+  fechaNacimiento?: string;
+  fotoPerfil?: string;
+  edicionesNombre: number; // 👈 AÑADIR ESTO
+  edicionesTelefono: number;
+  edicionesFecha: number;
 
   driverBool: boolean;
   host: boolean
+  verificacionDosPasos: boolean; 
 }
 
 export const useUser = () => {
@@ -24,11 +26,10 @@ export const useUser = () => {
       if (!token) return;
 
       try {
-        const res = await fetch('https://redibo-back-wtt.vercel.app/api/me', {
+        const res = await fetch('https://redibo-back-wtt.vercel.app//api/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          credentials: "include",
         });
         const data = await res.json();
         console.log('✅ User cargado:', data.user); // <-- DEBUG: para verificar que viene la foto
@@ -42,4 +43,29 @@ export const useUser = () => {
   }, []);
 
   return user;
+};
+
+export const useUserWithRefetch = () => {
+  const [user, setUser] = useState<User | null>(null);
+
+  const fetchUser = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const res = await fetch('https://redibo-back-wtt.vercel.app//api/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setUser(data.user);
+    } catch (error) {
+      console.error('Error al obtener el usuario:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  return { user, refetchUser: fetchUser };
 };

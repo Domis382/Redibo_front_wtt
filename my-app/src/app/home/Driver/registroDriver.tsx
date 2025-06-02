@@ -82,7 +82,7 @@ export default function registroDriver() {
     if (!token) {
       setIsError(true);
     } else {
-      setNombreUsuario(user?.nombre_completo || '');
+      setNombreUsuario(user?.nombreCompleto || '');
       setIsLoading(false);
     }
   }, [user]);
@@ -102,10 +102,10 @@ export default function registroDriver() {
       const parsed = JSON.parse(savedData);
       setSexo(parsed.sexo || '');
       setTelefonoUsuario(parsed.telefono || '');
-      setNroLicencia(parsed.nro_licencia || '');
-      setCategoriaLicencia(parsed.categoria || '');
-      setFechaEmisionState(parsed.fecha_emision || '');
-      setFechaVencimientoState(parsed.fecha_vencimiento || '');
+      setNroLicencia(parsed.licencia || '');
+      setCategoriaLicencia(parsed.tipoLicencia || '');
+      setFechaEmisionState(parsed.fechaEmision || '');
+      setFechaVencimientoState(parsed.fechaExpiracion || '');
     }
   }, [user]);
 
@@ -158,13 +158,14 @@ export default function registroDriver() {
   };
   
 
-  const handleFileChange = (
+ const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     tipo: 'anverso' | 'reverso' | 'perfil'
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-  
+
+    // Validación si ya hay una imagen en ese campo
     if (tipo === 'anverso' && anverso) {
       setErrorAnverso('Ya se ha cargado una imagen. Elimina la actual para subir otra.');
       return;
@@ -177,50 +178,41 @@ export default function registroDriver() {
       setErrorPerfil('Ya se ha cargado una imagen. Elimina la actual para subir otra.');
       return;
     }
-  
+
+    // Validación formato de imagen
     if (file.type !== 'image/png') {
       const errorMsg = 'Solo se permiten imágenes en formato PNG';
       if (tipo === 'anverso') {
         setErrorAnverso(errorMsg);
         setAnverso(null);
-      }
-      if (tipo === 'reverso') {
+      } else if (tipo === 'reverso') {
         setErrorReverso(errorMsg);
         setReverso(null);
-      }
-      if (tipo === 'perfil') {
+      } else if (tipo === 'perfil') {
         setErrorPerfil(errorMsg);
         setPerfil(null);
       }
-      if (tipo === 'anverso') {
-        setAnverso(file);
-        setErrorAnverso('');
-      }
-      if (tipo === 'reverso') {
-        setReverso(file);
-        setErrorReverso('');
-      }
       return;
     }
-  
+
+    // Validación de tamaño
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       const errorMsg = 'La imagen no debe superar los 5MB';
       if (tipo === 'anverso') {
         setErrorAnverso(errorMsg);
         setAnverso(null);
-      }
-      if (tipo === 'reverso') {
+      } else if (tipo === 'reverso') {
         setErrorReverso(errorMsg);
         setReverso(null);
-      }
-      if (tipo === 'perfil') {
+      } else if (tipo === 'perfil') {
         setErrorPerfil(errorMsg);
         setPerfil(null);
       }
       return;
     }
-  
+
+    // Validación de resolución
     const img = new Image();
     img.onload = () => {
       if (img.width < 500 || img.height < 500) {
@@ -228,50 +220,44 @@ export default function registroDriver() {
         if (tipo === 'anverso') {
           setErrorAnverso(errorMsg);
           setAnverso(null);
-        }
-        if (tipo === 'reverso') {
+        } else if (tipo === 'reverso') {
           setErrorReverso(errorMsg);
           setReverso(null);
-        }
-        if (tipo === 'perfil') {
+        } else if (tipo === 'perfil') {
           setErrorPerfil(errorMsg);
           setPerfil(null);
         }
-        return;
-      }
-  
-      if (tipo === 'anverso') {
-        setAnverso(file);
-        setErrorAnverso(null);
-      }
-      if (tipo === 'reverso') {
-        setReverso(file);
-        setErrorReverso(null);
-      }
-      if (tipo === 'perfil') {
-        setPerfil(file);
-        setErrorPerfil(null);
+      } else {
+        if (tipo === 'anverso') {
+          setAnverso(file);
+          setErrorAnverso(null);
+        } else if (tipo === 'reverso') {
+          setReverso(file);
+          setErrorReverso(null);
+        } else if (tipo === 'perfil') {
+          setPerfil(file);
+          setErrorPerfil(null);
+        }
       }
     };
-  
+
     img.onerror = () => {
       const errorMsg = 'No se pudo leer la imagen. Intenta con otra.';
       if (tipo === 'anverso') {
         setErrorAnverso(errorMsg);
         setAnverso(null);
-      }
-      if (tipo === 'reverso') {
+      } else if (tipo === 'reverso') {
         setErrorReverso(errorMsg);
         setReverso(null);
-      }
-      if (tipo === 'perfil') {
+      } else if (tipo === 'perfil') {
         setErrorPerfil(errorMsg);
         setPerfil(null);
       }
     };
-  
+
     img.src = URL.createObjectURL(file);
   };
+
   
 
   
@@ -329,26 +315,24 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
     fechaMinima.setFullYear(hoy.getFullYear() - 5);
 
     return fechaSeleccionada >= fechaMinima && fechaSeleccionada <= hoy;
-  };
+    };
 
-  const validarFechaVencimiento = (fecha: string): boolean => {
-    const fechaActual = new Date();
-    const fechaSeleccionada = new Date(fecha);
-    return fechaSeleccionada >= fechaActual;
-  }
+    const validarFechaVencimiento = (fecha: string): boolean => {
+      const fechaActual = new Date();
+      const fechaSeleccionada = new Date(fecha);
+      return fechaSeleccionada >= fechaActual;
+    }
 
-  if (isLoading) return <div>Cargando...</div>;
-  if (isError) return <div>Error: No tienes permiso para acceder a esta página.</div>;
+    if (isLoading) return <div>Cargando...</div>;
+    if (isError) return <div>Error: No tienes permiso para acceder a esta página.</div>;
 
-  function setFechaEmision(value: string): void {
-    throw new Error('Function not implemented.');
-  }
+    function setFechaEmision(value: string): void {
+      throw new Error('Function not implemented.');
+    }
 
-  function setFechaVencimiento(value: string): void {
-    throw new Error('Function not implemented.');
-  }
-
-
+    function setFechaVencimiento(value: string): void {
+      throw new Error('Function not implemented.');
+    }
 
 
 
@@ -437,6 +421,8 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
       valido = false;
     } else {
       const añoVencimiento = new Date(fechaVencimiento).getFullYear();
+      const hoy = new Date();
+
       if (añoVencimiento > 9999) {
         setErrorFechaVencimiento(true);
         setMensajeErrorFechaVencimiento('El año no puede exceder 9999');
@@ -445,11 +431,26 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
         setErrorFechaVencimiento(true);
         setMensajeErrorFechaVencimiento('La fecha debe ser posterior a hoy');
         valido = false;
+      } else if (fechaEmision) {
+        const emision = new Date(fechaEmision);
+        const vencimiento = new Date(fechaVencimiento);
+        const cincoAniosDespues = new Date(emision);
+        cincoAniosDespues.setFullYear(emision.getFullYear() + 5);
+
+        if (vencimiento > cincoAniosDespues) {
+          setErrorFechaVencimiento(true);
+          setMensajeErrorFechaVencimiento('La vigencia máxima permitida es de 5 años');
+          valido = false;
+        } else {
+          setErrorFechaVencimiento(false);
+          setMensajeErrorFechaVencimiento('');
+        }
       } else {
         setErrorFechaVencimiento(false);
         setMensajeErrorFechaVencimiento('');
       }
     }
+
 
 
     if (!anverso) {
@@ -497,10 +498,10 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
       const data = {
         sexo,
         telefono: telefonoUsuario,
-        nro_licencia: NroLicencia,
-        categoria: categoriaLicencia,
-        fecha_emision: fechaEmision,
-        fecha_vencimiento: fechaVencimiento,
+        licencia: NroLicencia,
+        tipoLicencia: categoriaLicencia,
+        fechaEmision: fechaEmision,
+        fechaExpiracion: fechaVencimiento,
         anversoUrl: urlAnverso,
         reversoUrl: urlReverso
       };
@@ -549,7 +550,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
 
 
       <div className="mt-7 w-full flex justify-center">
-        <div className="p-8 w-full max-w-[1300px] flex gap-8">
+        <div className="p-2 w-full max-w-[1300px] flex gap-8">
           
 
           {/* Columna izquierda - Datos personales */}
@@ -628,7 +629,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
               </div>
 
               {user?.telefono !== undefined && user?.telefono !== null ? (
-                // 📱 Teléfono ya registrado → solo mostrarlo, desactivado, sin fondo gris
+                //Teléfono ya registrado, solo lo muestra. Esta desactivado, sin fondo gris
                 <>
                   <input
                     type="text"
@@ -641,7 +642,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                   </span>
                 </>
               ) : (
-                // 🆕 No hay teléfono → input editable con validaciones
+                //No hay teléfono, input editable con validaciones
                 <>
                   <input
                     type="text"
@@ -652,9 +653,8 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                     onChange={(e) => {
                       const input = e.target.value;
 
-                      if (!/^\d*$/.test(input)) return;
-                      if (input.length > 8) return;
-                      if (input.length === 1 && !/^[67]$/.test(input)) return;
+                        if (!/^\d*$/.test(input)) return;
+                        if (input.length > 8) return;
 
                       setTelefonoUsuario(input);
 
@@ -751,8 +751,8 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                 Categoría
               </span>
               <select
-                id="categoria"
-                name="categoria"
+                id="tipoLicencia"
+                name="tipoLicencia"
                 value={categoriaLicencia}
                 onChange={(e) => {
                   const valor = e.target.value;
@@ -864,22 +864,52 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
                     const value = e.target.value;
                     setFechaVencimientoState(value);
 
-                    const esValida = validarFechaVencimiento(value);
-                    const esMenorQueEmision = fechaEmision && new Date(value) < new Date(fechaEmision);
-
                     if (!value) {
                       setErrorFechaVencimiento(true);
                       setMensajeErrorFechaVencimiento('Seleccione una fecha');
-                    } else if (!esValida) {
+                      return;
+                    }
+
+                    const vencimiento = new Date(value);
+                    const hoy = new Date();
+                    const emision = fechaEmision ? new Date(fechaEmision) : null;
+
+                    if (vencimiento < hoy) {
                       setErrorFechaVencimiento(true);
                       setMensajeErrorFechaVencimiento('La fecha debe ser posterior a hoy');
-                    } else if (esMenorQueEmision) {
+                      return;
+                    }
+
+                    if (emision && vencimiento < emision) {
                       setErrorFechaVencimiento(true);
                       setMensajeErrorFechaVencimiento('No puede ser menor que la fecha de emisión');
-                    } else {
-                      setErrorFechaVencimiento(false);
-                      setMensajeErrorFechaVencimiento('');
+                      return;
                     }
+
+                    if (emision) {
+                      const emisionDate = new Date(emision);
+                      const vencimientoDate = new Date(value);
+
+                      const diferenciaAnios =
+                        vencimientoDate.getFullYear() - emisionDate.getFullYear() ||
+                        vencimientoDate.getMonth() - emisionDate.getMonth() ||
+                        vencimientoDate.getDate() - emisionDate.getDate();
+
+                      const fechaExacta = new Date(emisionDate);
+                      fechaExacta.setFullYear(fechaExacta.getFullYear() + 5);
+
+                      if (
+                        vencimientoDate.getFullYear() !== fechaExacta.getFullYear() ||
+                        vencimientoDate.getMonth() !== fechaExacta.getMonth() ||
+                        vencimientoDate.getDate() !== fechaExacta.getDate()
+                      ) {
+                        setErrorFechaVencimiento(true);
+                        setMensajeErrorFechaVencimiento('La vigencia debe ser exactamente de 5 años');
+                        return;
+                      }
+                    }
+                    setErrorFechaVencimiento(false);
+                    setMensajeErrorFechaVencimiento('');
                   }}
                   className={`w-full pl-12 pr-4 pt-6 pb-2 rounded-lg border ${
                     errorFechaVencimiento
@@ -1001,7 +1031,7 @@ const removeFile = (tipo: 'anverso' | 'reverso' | 'perfil') => {
               </div>
 
             
-            <div className="flex justify-end mt-12 pr-6">
+            <div className="flex justify-end mt-1 pr-6">
             
 
 

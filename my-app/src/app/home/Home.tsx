@@ -1,3 +1,4 @@
+//home.tsx
 "use client";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation"; // ✅
@@ -17,7 +18,7 @@ import ModalLoginExitoso from '@/app/components/modals/ModalLoginExitoso';
 export default function HomePage() {
 
   const searchParams = useSearchParams();
-  const [showCompleteProfileModal, setShowCompleteProfileModal] =
+const [showCompleteProfileModal, setShowCompleteProfileModal] =
     useState(false);
   const [hasRedirected, setHasRedirected] = useState(false); // 👈 Evita doble redirect
 
@@ -27,10 +28,9 @@ export default function HomePage() {
   const [modalState, setModalState] = useState<
     "passwordRecovery" | "codeVerification" | "newPassword" | null
   >(null);
-
   const [showToast, setShowToast] = useState(false);
   const [showToast2, setShowToast2] = useState(false); // Para el mensaje de usuario bloqueado
-
+  
   const handleLoginSubmit = () => {
     setModalState("passwordRecovery");
   };
@@ -53,7 +53,7 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    /* const params = new URLSearchParams(window.location.search); */
+     /* const params = new URLSearchParams(window.location.search); */
     const autoLogin = searchParams.get("googleAutoLogin");
     const token = searchParams.get("token");
     const email = searchParams.get("email");
@@ -93,7 +93,7 @@ export default function HomePage() {
     }
 
   }, [searchParams, hasRedirected]);
-  
+
   const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
 
   useEffect(() => {
@@ -103,11 +103,11 @@ export default function HomePage() {
       localStorage.removeItem('loginSuccess');
     }
   }, []);
-
   return (
+    
     <div className={styles.container}>
       <header className={styles.headerTop}>
-        <Navbar
+        <Navbar 
           onLoginClick={() => setActiveModal("login")}
           onRegisterClick={() => setActiveModal("register")}
         />
@@ -139,17 +139,17 @@ export default function HomePage() {
       )}
       {modalState === "codeVerification" && (
         <CodeVerificationModal
-          onClose={handleBackToPasswordRecovery}
-          onCodeVerificationSubmit={handleCodeVerificationSubmit}
-          onBlocked={() => {
-            setModalState(null);
-            setActiveModal("login"); // Redirige al Login al finalizar
-            setShowToast2(true); // muestra el pop-up
+        onClose={handleBackToPasswordRecovery}
+        onCodeVerificationSubmit={handleCodeVerificationSubmit}
+        onBlocked={() => {
+          setModalState(null);
+          setActiveModal("login"); // Redirige al Login al finalizar
+          setShowToast2(true); // muestra el pop-up
 
             // Ocultar el toast automáticamente después de 3 segundos
             setTimeout(() => setShowToast2(false), 10000);
-          }} // ✅ Redirige al login si el backend dice "bloqueado"
-        />
+        }} // ✅ Redirige al login si el backend dice "bloqueado"
+      />
       )}
       {modalState === "newPassword" && (
         <NewPasswordModal
@@ -162,7 +162,8 @@ export default function HomePage() {
 
             // Ocultar el toast automáticamente después de 3 segundos
             setTimeout(() => setShowToast(false), 10000);
-          }}
+          }} 
+          
         />
       )}
       {showToast && (
@@ -175,6 +176,9 @@ export default function HomePage() {
           Usuario bloqueado temporalmente. Intenta nuevamente más tarde.
         </div>
       )}
+      {showLoginSuccessModal && (
+              <ModalLoginExitoso onClose={() => setShowLoginSuccessModal(false)} />
+            )}
 
       {showLoginSuccessModal && (
         <ModalLoginExitoso onClose={() => setShowLoginSuccessModal(false)} />
@@ -186,7 +190,7 @@ export default function HomePage() {
       />
       )}
 
-      {activeModal === "register" && (
+ {activeModal === "register" && (
         <RegisterModal
           onClose={() => setActiveModal(null)}
           onLoginClick={() => setActiveModal("login")}

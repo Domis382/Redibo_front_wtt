@@ -46,45 +46,64 @@ const CompleteProfileModal: React.FC<Props> = ({
 
       const formData = new FormData();
 
-      // 🚗 Datos del vehículo
+      // Vehículo
       formData.append("placa", vehicleData.placa);
       formData.append("soat", vehicleData.soat);
       vehicleData.imagenes.forEach((img) => formData.append("imagenes", img));
 
-      // 💳 Datos del método de pago
-      const tipo = paymentData.cardNumber
-        ? "card"
-        : paymentData.qrImage
-        ? "qr"
-        : "cash";
-
-      formData.append("tipo", tipo);
-
-      if (tipo === "card") {
-        formData.append("numero_tarjeta", paymentData.cardNumber!.replace(/\s/g, ""));
-        formData.append("fecha_expiracion", paymentData.expiration || "");
-        formData.append("titular", paymentData.cardHolder || "");
-        formData.append("detalles_metodo", "Pago con tarjeta");
-      }
-
-      if (tipo === "qr" && paymentData.qrImage) {
+      // Método de pago
+      if (paymentData.cardNumber) {
+        formData.append("tipo", "card");
+        
+        // Elimina espacios en blanco y formatea el número de TARJETA_DEBITO
+        const cleanCardNumber = paymentData.cardNumber.replace(/\s/g, "");
+        formData.append("numeroTarjeta", cleanCardNumber);
+        
+        // Asegúrate de que la fecha de expiración tenga el formato correcto
+        if (paymentData.expiration) {
+          formData.append("fechaExpiracion", paymentData.expiration);
+        }
+        
+        // El CVV podría ser problemático por razones de seguridad
+        // Asegúrate de que el backend lo espera y procesa correctamente
+        if (paymentData.cvv) {
+          formData.append("cvv", paymentData.cvv);
+        }
+        
+        // Enviar el titular de la TARJETA_DEBITO
+        if (paymentData.cardHolder) {
+          formData.append("titular", paymentData.cardHolder);
+        }
+      } else if (paymentData.qrImage) {
+        formData.append("tipo", "QR");
         formData.append("qrImage", paymentData.qrImage);
-        formData.append("detalles_metodo", "Pago por QR");
+      } else if (paymentData.efectivoDetalle) {
+        formData.append("tipo", "cash");
+        formData.append("detalles_metodo", paymentData.efectivoDetalle);
       }
 
-      if (tipo === "cash") {
-        formData.append("detalles_metodo", paymentData.efectivoDetalle || "Pago en efectivo");
-      }
+      // Para debugging - ver qué datos estamos enviando
+      console.log("Enviando datos de pago:", {
+        tipo: paymentData.cardNumber ? "card" : paymentData.qrImage ? "QR" : "cash",
+        ...(paymentData.cardNumber && {
+          numeroTarjeta: paymentData.cardNumber.replace(/\s/g, ""),
+          fechaExpiracion: paymentData.expiration,
+          titular: paymentData.cardHolder
+        })
+      });
 
-      const response = await fetch("https://redibo-back-wtt.vercel.app/api/registro-host", {
+      const response = await fetch("https://redibo-back-wtt.vercel.app//api/registro-host", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          // No incluimos Content-Type cuando enviamos FormData con archivos
         },
         body: formData,
       });
 
+      // Log de la respuesta para depuración
       console.log("Estado de respuesta:", response.status, response.statusText);
+      
       const result = await response.json();
       console.log("Respuesta completa:", result);
 
@@ -93,20 +112,29 @@ const CompleteProfileModal: React.FC<Props> = ({
         localStorage.setItem("registroExitosoHost", "true");
 
         setTimeout(() => {
+          // 👇 Recarga solo si estás en homePage
           if (window.location.pathname.includes("/home/homePage")) {
             window.location.reload();
           } else {
-            onComplete();
+            onComplete(); // fallback por si estás en otra ruta
           }
         }, 2000);
-      } else {
-        const errorMsg = result.message || result.error || "Ocurrió un error al registrar.";
+      }
+
+        else {
+        // Mensaje de error más detallado
+        const errorMsg = result.message || 
+                      (result.error ? `Error: ${result.error}` : "Ocurrió un error al registrar.");
         console.error("Error de respuesta:", errorMsg);
         setError(errorMsg);
       }
     } catch (err) {
       console.error("❌ Error al enviar datos:", err);
-      setError("Error de red o servidor: " + (err instanceof Error ? err.message : "Desconocido"));
+      if (err instanceof Error) {
+        setError(`Error de red o servidor: ${err.message || "Desconocido"}`);
+      } else {
+        setError("Error de red o servidor: Desconocido");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -204,7 +232,7 @@ const CompleteProfileModal: React.FC<Props> = ({
               ) : paymentData.qrImage ? (
                 <p className="font-semibold text-sm">Pago con QR</p>
               ) : (
-                <p className="font-semibold text-sm">Pago en efectivo</p>
+                <p className="font-semibold text-sm">Pago en EFECTIVO</p>
               )}
             </div>
 
