@@ -34,7 +34,7 @@ const CodeVerificationModal = ({
     console.log('🚀 Enviando al backend:', { code });
 
     try {
-      const response = await fetch('https://redibo-back-wtt.vercel.app//api/verify-code', {
+      const response = await fetch('https://redibo-back-wtt.vercel.app/api/verify-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code }),
