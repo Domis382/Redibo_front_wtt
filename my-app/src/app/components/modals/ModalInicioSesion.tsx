@@ -61,7 +61,7 @@ export default function ModalInicioSesion({
     }
     setError('');
     try {
-      await fetch('https://redibo-back-wtt.vercel.app/api/2fa/enviar', {
+      await fetch('http://localhost:3001/api/2fa/enviar', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${tempToken}`,
@@ -74,7 +74,7 @@ export default function ModalInicioSesion({
         iniciarContador();
       } else {
         setPuedeReenviar(false);
-        setError(`Has alcanzado el límite de 2 reenvíos`);
+        setError(`Has alcanzado el límite de 3 reenvíos`);
       }
     } catch {
       setError('Error al reenviar el código');
@@ -86,7 +86,7 @@ export default function ModalInicioSesion({
   setError('');
 
   try {
-    const res = await fetch('https://redibo-back-wtt.vercel.app/api/2fa/verificar-login', {
+    const res = await fetch('http://localhost:3001/api/2fa/verificar-login', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${tempToken}`,
