@@ -24,9 +24,9 @@ export default function UserPerfilPage() {
 
 
   useEffect(() => {
-    if (user?.foto_perfil) {
-      setImagePreviewUrl(user.foto_perfil);
-      console.log('✅ Foto cargada:', `${BACK_URL}${user.foto_perfil}`);
+    if (user?.fotoPerfil) {
+      setImagePreviewUrl(user.fotoPerfil);
+      console.log('✅ Foto cargada:', `${BACK_URL}${user.fotoPerfil}`);
     }
   }, [user]);
   if (!user) return null;
@@ -66,10 +66,10 @@ export default function UserPerfilPage() {
               {/* Input Nombre */}
               {user && (
                 <NombreEditable
-                  initialValue={user.nombre_completo}
+                  initialValue={user.nombreCompleto}
                   campoEnEdicion={campoEnEdicion} // 👈 NUEVO
                   setCampoEnEdicion={setCampoEnEdicion} // 👈 NUEVO
-                  edicionesUsadas={user.ediciones_nombre || 0}
+                  edicionesUsadas={user.edicionesNombre || 0}
                 />
               )}
 
@@ -89,11 +89,11 @@ export default function UserPerfilPage() {
                 <div className="flex-grow">
                 {user && (
                   <FechaNacimientoEditable
-                  initialValue={user.fecha_nacimiento?.split("T")[0] || ""}
+                  initialValue={user.fechaNacimiento?.split("T")[0] || ""}
                   campoEnEdicion={campoEnEdicion}
                   setCampoEnEdicion={setCampoEnEdicion}
-                  setFechaVisual={(nuevaFecha) => user.fecha_nacimiento = nuevaFecha}
-                  edicionesUsadas={user.ediciones_fecha || 0} // ✅ CORRECTO
+                  setFechaVisual={(nuevaFecha) => user.fechaNacimiento = nuevaFecha}
+                  edicionesUsadas={user.edicionesFecha || 0} // ✅ CORRECTO
                   />
                 )}
                 </div>
@@ -104,7 +104,7 @@ export default function UserPerfilPage() {
                     initialValue={user.telefono?.toString() || ''}
                     campoEnEdicion={campoEnEdicion} // 👈 NUEVO
                     setCampoEnEdicion={setCampoEnEdicion} // 👈 NUEVO
-                    edicionesUsadas={user.ediciones_telefono || 0}
+                    edicionesUsadas={user.edicionesTelefono || 0}
                   />
                 )}
               </div>

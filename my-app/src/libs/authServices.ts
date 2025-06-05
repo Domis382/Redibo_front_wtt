@@ -1,4 +1,5 @@
 // src/libs/authService.ts
+import { BACK_URL } from "@/libs/config";
 
 export async function login(email: string, password: string) {
   const res = await fetch(`${BACK_URL}/api/login`, {

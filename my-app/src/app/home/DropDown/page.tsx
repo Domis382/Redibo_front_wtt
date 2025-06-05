@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { NotificacionesCampana } from '../componentes/notificacionCampana/NotificacionesCampana';
+import { NotificacionesCampana } from '../NotificacionesCampana';
 
 export default function Home() {
   return (
