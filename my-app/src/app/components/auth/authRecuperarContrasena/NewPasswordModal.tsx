@@ -91,7 +91,7 @@ const NewPasswordModal = ({
       console.log('📤 Enviando al backend:', {newPassword });
       //console.log('📦 Código recibido en NewPasswordModal:', code);
 
-      const response = await fetch('https://redibo-back-wtt.vercel.app/api/reset-password', {
+      const response = await fetch('${BACK_URL}/api/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({  newPassword }),

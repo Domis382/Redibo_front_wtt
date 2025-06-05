@@ -15,6 +15,7 @@ import VehicleDataModal from '@/app/components/auth/authRegistroHost/VehicleData
 import PaymentModal from '@/app/components/auth/authRegistroHost/PaymentModal';
 import CompleteProfileModal from '@/app/components/auth/authRegistroHost/CompleteProfileModal';
 import ModalLoginExitoso from '@/app/components/modals/ModalLoginExitoso';
+import { BACK_URL } from "@/libs/config";
 
 
 export default function MainHome() {
@@ -159,7 +160,7 @@ export default function MainHome() {
           onClose={async () => {
             if (vehicleData?.idAuto) {
               const token = localStorage.getItem("token");
-              await fetch(`https://redibo-back-wtt.vercel.app/api/autos/eliminar-vehiculo/${vehicleData.idAuto}`, {
+              await fetch(`${BACK_URL}/api/autos/eliminar-vehiculo/${vehicleData.idAuto}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
               });

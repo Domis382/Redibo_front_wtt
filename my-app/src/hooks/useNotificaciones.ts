@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import NotificationService from '../app/services/NotificationService';
 import { getUserId } from '../app/utils/userIdentifier';
 import type { Notificacion, NotificationResponse } from '@/app/types/notification';
+import { BACK_URL } from "@/libs/config";
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<NotificationResponse[]>([]);
@@ -24,7 +25,7 @@ export function useNotifications() {
     setLoading(true);
     try {
       console.log("Solicitando notificaciones a la API...");
-      const response = await fetch(`https://redibo-back-wtt.vercel.app/api/notificaciones/dropdown-notificaciones/${userId}`);
+      const response = await fetch(`${BACK_URL}/api/notificaciones/dropdown-notificaciones/${userId}`);
       const data = await response.json();
       
       console.log("Respuesta API notificaciones:", data);
@@ -64,7 +65,7 @@ export function useNotifications() {
     
     try {
       console.log("Obteniendo conteo de no leídas directo de la API");
-      const response = await fetch(`https://redibo-back-wtt.vercel.app/api/notificaciones/notificaciones-no-leidas/${userId}`);
+      const response = await fetch(`${BACK_URL}/api/notificaciones/notificaciones-no-leidas/${userId}`);
       const data = await response.json();
       
       if (response.ok) {
@@ -102,7 +103,7 @@ export function useNotifications() {
       
       console.log("Llamando a API para marcar como leída:", notificationId);
       const response = await fetch(
-        `https://redibo-back-wtt.vercel.app/api/notificaciones/notificacion-leida/${notificationId}/${userId}`,
+        `${BACK_URL}/api/notificaciones/notificacion-leida/${notificationId}/${userId}`,
         { method: 'PUT' }
       );
       

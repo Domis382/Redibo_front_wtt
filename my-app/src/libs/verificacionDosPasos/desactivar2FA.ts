@@ -1,9 +1,11 @@
 //libs/verificacionDosPasos/desactivar2FA.ts
+import { BACK_URL } from "@/libs/config";
+
 export const desactivar2FA = async () => {
   const token = localStorage.getItem('token');
   if (!token) throw new Error('No hay token disponible');
 
-  const res = await fetch('https://redibo-back-wtt.vercel.app/api/2fa/desactivar', {
+  const res = await fetch(`${BACK_URL}/api/2fa/desactivar`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

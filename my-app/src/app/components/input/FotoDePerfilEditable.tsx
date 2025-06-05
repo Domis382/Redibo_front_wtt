@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef } from 'react';
+import { BACK_URL } from "@/libs/config";
 
 //foto de perfil
 //import { uploadProfilePhoto } from '@/libs/userService';
@@ -67,7 +68,7 @@ export default function FotoDePerfilEditable({setImagePreviewUrl }: Props) {
   
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('https://redibo-back-wtt.vercel.app/api/upload-profile-photo', {
+        const response = await fetch(`${BACK_URL}/api/upload-profile-photo`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,

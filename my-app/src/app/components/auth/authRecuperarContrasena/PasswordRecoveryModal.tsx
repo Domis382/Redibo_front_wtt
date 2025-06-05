@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { BACK_URL } from "@/libs/config";
 
 const validDomains = ['@gmail.com', '@hotmail.com', '@outlook.com', '@yahoo.com']; // <-- Aquí defines los dominios válidos
 
@@ -45,7 +46,7 @@ const PasswordRecoveryModal = ({
     }
 
     try {
-      const response = await fetch('https://redibo-back-wtt.vercel.app/api/recover-password', {
+      const response = await fetch('${BACK_URL}/api/recover-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

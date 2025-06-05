@@ -1,7 +1,9 @@
 //libs/verificacionDosPasos/send2FACode.ts
+import { BACK_URL } from "@/libs/config";
+
 export const send2FACode = async () => {
   const token = localStorage.getItem('token');
-  const res = await fetch('https://redibo-back-wtt.vercel.app/api/2fa/enviar', {
+  const res = await fetch(`${BACK_URL}/api/2fa/enviar`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,

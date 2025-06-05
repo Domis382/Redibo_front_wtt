@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { X, Check } from "lucide-react";
+import { BACK_URL } from "@/libs/config";
 
 interface Props {
   onComplete: () => void;
@@ -92,7 +93,7 @@ const CompleteProfileModal: React.FC<Props> = ({
         })
       });
 
-      const response = await fetch("https://redibo-back-wtt.vercel.app/api/registro-host", {
+      const response = await fetch('${BACK_URL}/api/registro-host', {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

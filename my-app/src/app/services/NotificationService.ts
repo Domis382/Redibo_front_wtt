@@ -1,4 +1,5 @@
 import { NotificationResponse } from '../types/notification';
+import { BACK_URL } from "@/libs/config";
 
 export type Notification = NotificationResponse;
 
@@ -56,7 +57,7 @@ class NotificationService {
       
       try {
         console.log(`Intentando conectar SSE para usuario ${this.usuarioId}`);
-        const url = `https://redibo-back-wtt.vercel.app/api/notificaciones/sse/${this.usuarioId}`;
+        const url = ``${BACK_URL}/api/notificaciones/sse/${this.usuarioId}`;
         console.log('URL de conexión SSE:', url);
         
         this.eventSource = new EventSource(url);

@@ -1,5 +1,6 @@
 //hooks/useUser.ts
 import { useEffect, useState, useCallback } from 'react';
+import { BACK_URL } from "@/libs/config";
 
 interface User {
   idUsuario: number;
@@ -26,7 +27,7 @@ export const useUser = () => {
       if (!token) return;
 
       try {
-        const res = await fetch('https://redibo-back-wtt.vercel.app/api/me', {
+        const res = await fetch(`${BACK_URL}/api/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -53,7 +54,7 @@ export const useUserWithRefetch = () => {
     if (!token) return;
 
     try {
-      const res = await fetch('https://redibo-back-wtt.vercel.app/api/me', {
+      const res = await fetch(`${BACK_URL}/api/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();

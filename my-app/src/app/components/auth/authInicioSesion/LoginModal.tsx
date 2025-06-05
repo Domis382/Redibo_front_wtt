@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { login } from '@/libs/authServices'; // Importa tu servicio
 import { useRouter } from 'next/navigation';
 import ModalInicioSesion2FA from '@/app/components/modals/ModalInicioSesion';
+import { BACK_URL } from "@/libs/config";
 ///////////////////////////
 export default function LoginModal({ onClose, onRegisterClick, onPasswordRecoveryClick}: { 
   onClose: () => void; 
@@ -23,7 +24,7 @@ export default function LoginModal({ onClose, onRegisterClick, onPasswordRecover
       setTimeout(() => {
         console.log("➡️ Redirigiendo a Google OAuth");
         window.location.href =
-          "https://redibo-back-wtt.vercel.app/api/auth/google";
+          `${BACK_URL}/api/auth/google`;
       }, 300); // 300ms = 0.3 segundos
     } catch (error) {
       console.error("❌ Error en registro con Google", error);
@@ -135,7 +136,7 @@ export default function LoginModal({ onClose, onRegisterClick, onPasswordRecover
       if (result.requires2FA) {
         // AQUÍ VA EL CÓDIGO PARA ENVIAR EL 2FA
         try {
-          await fetch('https://redibo-back-wtt.vercel.app/api/2fa/enviar', {
+          await fetch('${BACK_URL}/api/2fa/enviar', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${result.tempToken}`,

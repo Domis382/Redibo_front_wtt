@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BACK_URL } from "@/libs/config";
 
 interface Driver {
   nombreCompleto: string;
@@ -17,7 +18,7 @@ export const useDrivers = () => {
       if (!token) return;
 
       try {
-        const res = await fetch('https://redibo-back-wtt.vercel.app/api/drivers-by-renter', {
+        const res = await fetch(`${BACK_URL}/api/drivers-by-renter`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

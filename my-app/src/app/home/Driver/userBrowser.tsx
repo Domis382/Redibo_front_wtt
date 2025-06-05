@@ -5,6 +5,7 @@ import { FiMail, FiPhone, FiSearch, FiPlusCircle, FiX } from "react-icons/fi";
 import NavbarPerfilUsuario from '@/app/components/navbar/NavbarPerfilUsuario';
 import { useRouter } from "next/navigation";
 import { profile } from "console";
+import { BACK_URL } from "@/libs/config";
 
 
 
@@ -49,7 +50,7 @@ const UserBrowser = () => {
     }
   
     // Cargar usuarios desde backend
-    fetch("https://redibo-back-wtt.vercel.app/api/usuarios/renters")
+    fetch(`${BACK_URL}/api/usuarios/renters`)
       .then((res) => res.json())
       .then((data) => setAllUsers(data))
       .catch((err) => console.error("Error al obtener renters:", err))
@@ -121,7 +122,7 @@ const UserBrowser = () => {
         reversoUrl,
       } = JSON.parse(datosPaso1);
   
-      const res = await fetch("https://redibo-back-wtt.vercel.app/api/registro-driver", {
+      const res = await fetch(`${BACK_URL}/api/registro-driver`, {
         method: "POST",
         headers: { "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,},

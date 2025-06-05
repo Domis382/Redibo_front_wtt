@@ -11,6 +11,7 @@ import CategoriaIcon from "@/app/components/Icons/Categoria";
 import CalendarIcon from "@/app/components/Icons/Calendar";
 import { SolarGalleryOutline } from "@/app/components/Icons/Gallery";
 import { useUser } from '@/hooks/useUser';
+import { BACK_URL } from "@/libs/config";
 
 // Componente de icono de edición
 const EditIcon = ({ className = "w-5 h-5" }) => (
@@ -309,7 +310,7 @@ const [renters, setRenters] = useState<Renter[]>([]);
     }
 
     try {
-      const response = await fetch("https://redibo-back-wtt.vercel.app/api/driver/renters", {
+      const response = await fetch(`${BACK_URL}/api/driver/renters`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -368,7 +369,7 @@ const [renters, setRenters] = useState<Renter[]>([]);
           return;
         }
 
-        const res = await fetch("https://redibo-back-wtt.vercel.app/api/profile", {
+        const res = await fetch(`${BACK_URL}/api/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -406,8 +407,8 @@ const [renters, setRenters] = useState<Renter[]>([]);
 
   {/*useEffect(() => {
     if (user?.fotoPerfil) {
-      setImagePreviewUrl(`https://redibo-back-wtt.vercel.app${user.fotoPerfil}`);
-      console.log('✅ Foto cargada:', `https://redibo-back-wtt.vercel.app${user.fotoPerfil}`);
+      setImagePreviewUrl(``${BACK_URL}${user.fotoPerfil}`);
+      console.log('✅ Foto cargada:', ``${BACK_URL}${user.fotoPerfil}`);
     }
   }, [user]);*/}
   useEffect(() => {
@@ -479,7 +480,7 @@ const [renters, setRenters] = useState<Renter[]>([]);
       formData.append('reverso', reversoFile);
     }
 
-    const res = await fetch("https://redibo-back-wtt.vercel.app/api/profile", {
+    const res = await fetch(`${BACK_URL}/api/profile`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,

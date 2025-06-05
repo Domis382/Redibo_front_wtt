@@ -1,8 +1,9 @@
-import { backendip } from "@/libs/authServices";
+/* import { backendip } from "@/libs/authServices"; */
 import styles from "./RegisterModal.module.css";
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { BACK_URL } from "@/libs/config";
 
 const getDaysInMonth = (month: number, year: number) => {
   return new Date(year, month, 0).getDate();
@@ -151,7 +152,7 @@ export default function CompleteProfileModal({
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(
-          "https://redibo-back-wtt.vercel.app/api/check-phone",
+          `${BACK_URL}/api/check-phone`,
           {
           method: "POST",
           headers: {
@@ -187,7 +188,7 @@ export default function CompleteProfileModal({
       const token = localStorage.getItem("token");
       console.log("Token a enviar (CompleteProfileModal):", token);
       const res = await fetch(
-        "https://redibo-back-wtt.vercel.app/api/update-profile",
+        `${BACK_URL}/api/update-profile`,
         {
         method: "PATCH",
         headers: {
@@ -468,7 +469,7 @@ export default function CompleteProfileModal({
               const email = localStorage.getItem("google_email");
               if (email) {
                 await fetch(
-                  "https://redibo-back-wtt.vercel.app/api/delete-incomplete-user",
+                  `${BACK_URL}/api/delete-incomplete-user`,
                   {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },

@@ -12,6 +12,7 @@ import PerfilIcon from "@/app/components/Icons/Perfil";
 import FechaNacimientoEditable from "@/app/components/input/FechaNacimientoEditable";
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/hooks/useUser';
+import { BACK_URL } from "@/libs/config";
 
 export default function UserPerfilPage() {
   const user = useUser();
@@ -25,7 +26,7 @@ export default function UserPerfilPage() {
   useEffect(() => {
     if (user?.foto_perfil) {
       setImagePreviewUrl(user.foto_perfil);
-      console.log('✅ Foto cargada:', `https://redibo-back-wtt.vercel.app${user.foto_perfil}`);
+      console.log('✅ Foto cargada:', `${BACK_URL}${user.foto_perfil}`);
     }
   }, [user]);
   if (!user) return null;
