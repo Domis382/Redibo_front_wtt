@@ -67,7 +67,7 @@ export default function FotoDePerfilEditable({setImagePreviewUrl }: Props) {
   
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://34.69.214.55:3001/api/upload-profile-photo', {
+        const response = await fetch('https://redibo-back-wtt.vercel.app/api/upload-profile-photo', {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
