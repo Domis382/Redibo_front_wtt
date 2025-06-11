@@ -36,7 +36,7 @@ export default function LoginModal({ onClose, onRegisterClick, onPasswordRecover
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   //Correo dominio//
-  const [errorBeforeAt, setErrorBeforeAt] = useState('');//Validacion que contenga texto antes del @
+  const [errorBeforeAt, setErrorBeforeAt] = useState('');//Validacion que contenga texto antes del @___
 
   const [errorTextAfterAt, setErrorTextAfterAt] = useState('');//Validacion que contenga dominio despues del @
 
