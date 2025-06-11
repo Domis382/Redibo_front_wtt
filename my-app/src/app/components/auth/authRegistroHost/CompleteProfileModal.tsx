@@ -54,39 +54,87 @@ const CompleteProfileModal: React.FC<Props> = ({
       // Método de pago
       if (paymentData.cardNumber) {
         formData.append("tipo", "card");
-        formData.append("numero_tarjeta", paymentData.cardNumber);
-        formData.append("fecha_expiracion", paymentData.expiration ?? "");
-        formData.append("cvv", paymentData.cvv ?? "");
-        formData.append("titular", paymentData.cardHolder ?? "");
+        
+        // Elimina espacios en blanco y formatea el número de TARJETA_DEBITO
+        const cleanCardNumber = paymentData.cardNumber.replace(/\s/g, "");
+        formData.append("numeroTarjeta", cleanCardNumber);
+        
+        // Asegúrate de que la fecha de expiración tenga el formato correcto
+        if (paymentData.expiration) {
+          formData.append("fechaExpiracion", paymentData.expiration);
+        }
+        
+        // El CVV podría ser problemático por razones de seguridad
+        // Asegúrate de que el backend lo espera y procesa correctamente
+        if (paymentData.cvv) {
+          formData.append("cvv", paymentData.cvv);
+        }
+        
+        // Enviar el titular de la TARJETA_DEBITO
+        if (paymentData.cardHolder) {
+          formData.append("titular", paymentData.cardHolder);
+        }
       } else if (paymentData.qrImage) {
-        formData.append("tipo", "qr");
+        formData.append("tipo", "QR");
         formData.append("qrImage", paymentData.qrImage);
       } else if (paymentData.efectivoDetalle) {
         formData.append("tipo", "cash");
         formData.append("detalles_metodo", paymentData.efectivoDetalle);
       }
 
-      const response = await fetch("http://34.69.214.55:3001/api/registro-host", {
+      // Para debugging - ver qué datos estamos enviando
+      console.log("Enviando datos de pago:", {
+        tipo: paymentData.cardNumber ? "card" : paymentData.qrImage ? "QR" : "cash",
+        ...(paymentData.cardNumber && {
+          numeroTarjeta: paymentData.cardNumber.replace(/\s/g, ""),
+          fechaExpiracion: paymentData.expiration,
+          titular: paymentData.cardHolder
+        })
+      });
+
+      const response = await fetch("http://localhost:3001/api/registro-host", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          // No incluimos Content-Type cuando enviamos FormData con archivos
         },
         body: formData,
       });
 
+      // Log de la respuesta para depuración
+      console.log("Estado de respuesta:", response.status, response.statusText);
+      
       const result = await response.json();
+      console.log("Respuesta completa:", result);
 
       if (response.ok) {
         setSuccess(true);
+        localStorage.setItem("registroExitosoHost", "true");
+
         setTimeout(() => {
-          onComplete();
+          // 👇 Recarga solo si estás en homePage
+          if (window.location.pathname.includes("/home/homePage")) {
+            window.location.reload();
+          } else {
+            onComplete(); // fallback por si estás en otra ruta
+          }
         }, 2000);
-      } else {
-        setError(result.message || "Ocurrió un error al registrar.");
+      }
+
+        else {
+        // Mensaje de error más detallado
+        const errorMsg = result.message || 
+                      (result.error ? `Error: ${result.error}` : "Ocurrió un error al registrar.");
+        console.error("Error de respuesta:", errorMsg);
+        setError(errorMsg);
       }
     } catch (err) {
       console.error("❌ Error al enviar datos:", err);
-      setError("Error de red o servidor.");
+      if (err instanceof Error) {
+        setError(`Error de red o servidor: ${err.message || "Desconocido"}`);
+      } else {
+        setError("Error de red o servidor: Desconocido");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -184,7 +232,7 @@ const CompleteProfileModal: React.FC<Props> = ({
               ) : paymentData.qrImage ? (
                 <p className="font-semibold text-sm">Pago con QR</p>
               ) : (
-                <p className="font-semibold text-sm">Pago en efectivo</p>
+                <p className="font-semibold text-sm">Pago en EFECTIVO</p>
               )}
             </div>
 
@@ -216,4 +264,3 @@ const CompleteProfileModal: React.FC<Props> = ({
 };
 
 export default CompleteProfileModal;
-
