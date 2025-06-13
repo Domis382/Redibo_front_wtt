@@ -58,7 +58,9 @@ export default function UserPerfilDriver() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const user = useUser();
-  const [imagePreviewUrl, /* setImagePreviewUrl */] = useState<string | null>(null);
+  //const [imagePreviewUrl] = useState<string | null>(null);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+
   // AGREGAR ESTOS NUEVOS ESTADOS:
   const [anversoFile, setAnversoFile] = useState<File | null>(null);
   const [reversoFile, setReversoFile] = useState<File | null>(null);
@@ -322,7 +324,7 @@ export default function UserPerfilDriver() {
       }
 
       try {
-        const response = await fetch("https://redibo-back-wtt.vercel.app/api/driver/renters", {
+        const response = await fetch("http://localhost:3001/api/driver/renters", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -375,7 +377,6 @@ export default function UserPerfilDriver() {
   const indexPrimero = indexUltimo - itemsPorPagina;
   const rentersPaginados = rentersOrdenados.slice(indexPrimero, indexUltimo);
   //const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
-  const [/* profilePhotoUrl */, setProfilePhotoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDriver = async () => {
@@ -387,7 +388,7 @@ export default function UserPerfilDriver() {
           return;
         }
 
-        const res = await fetch("https://redibo-back-wtt.vercel.app/api/profile", {
+        const res = await fetch("http://localhost:3001/api/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -523,7 +524,7 @@ export default function UserPerfilDriver() {
         formData.append('reverso', reversoFile);
       }
 
-      const res = await fetch("https://redibo-back-wtt.vercel.app/api/profile", {
+      const res = await fetch("http://localhost:3001/api/profile", {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -748,14 +749,13 @@ export default function UserPerfilDriver() {
                     onMouseEnter={() => handleMouseEnter('fotoPerfil')}
                     onMouseLeave={() => handleMouseLeave('fotoPerfil')}
                   >
-                    {imagePreviewUrl ? (
+                    {profilePhotoUrl ? (
                       <NextImage
-                        src={imagePreviewUrl}
+                        src={profilePhotoUrl}
                         alt="Foto de perfil"
                         width={120}
                         height={120}
                         className="w-full h-full object-cover"
-
                       />
                     ) : (
                       <PerfilIcon className="w-full h-full text-gray-500 p-4" />
